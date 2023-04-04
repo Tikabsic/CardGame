@@ -23,9 +23,6 @@ namespace Application.Services
             _dbContext = dbContext;
         }
 
-        public ILogger<AccountService> Logger { get; }
-        public IAppDbContext DbContext { get; }
-
         public async Task RegisterUser(RegisterUserDTO dto)
         {
 
