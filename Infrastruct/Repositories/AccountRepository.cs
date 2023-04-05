@@ -16,8 +16,10 @@ namespace Infrastruct.Repositories
 
         public async Task AddUser(User user)
         {
-            _dbContext.User.Add(user);
+            await _dbContext.User.AddAsync(user);
+
             await _dbContext.SaveChangesAsync();
+
         }
     }
 }

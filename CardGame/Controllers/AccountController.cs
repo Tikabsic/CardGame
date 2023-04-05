@@ -17,9 +17,9 @@ namespace CardGame.Controllers
         }
 
         [HttpPost("register")]
-        public ActionResult RegisterUser([FromBody] RegisterUserDTO dto)
+        public async Task<ActionResult> RegisterUser([FromBody] RegisterUserDTO dto)
         {
-            _service.RegisterUser(dto);
+            await _service.RegisterUser(dto);
             return Ok($"Welcome {dto.Name} !");
         }
     }

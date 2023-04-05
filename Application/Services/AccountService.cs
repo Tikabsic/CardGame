@@ -25,7 +25,6 @@ namespace Application.Services
 
         public async Task RegisterUser(RegisterUserDTO dto)
         {
-            _logger.LogError($"Error occured durning {dto.Name} Registration!");
 
             var hashedPassword = _passwordHasher.Hash(dto.Password);
 
