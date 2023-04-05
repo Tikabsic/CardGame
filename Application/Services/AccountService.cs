@@ -4,8 +4,8 @@ using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Domain.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+
 
 namespace Application.Services
 {
@@ -25,17 +25,17 @@ namespace Application.Services
 
         public async Task RegisterUser(RegisterUserDTO dto)
         {
+            _logger.LogError($"Error occured durning {dto.Name} Registration!");
 
             var hashedPassword = _passwordHasher.Hash(dto.Password);
 
             var newUser = new User()
-                {
-                    Name = dto.Name,
-                    Password = hashedPassword
-                };
+            {
+                Name = dto.Name,
+                Password = hashedPassword
+            };
 
-                await _accountRepository.AddUser(newUser);
-            
+            await _accountRepository.AddUser(newUser);
         }
     }
 }
