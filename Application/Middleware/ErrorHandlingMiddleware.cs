@@ -1,11 +1,6 @@
 ﻿using Application.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Middleware
 {
@@ -24,10 +19,25 @@ namespace Application.Middleware
             {
                 await next.Invoke(context);
             }
+            catch (BadRequestException badRequestException)
+            {
+                context.Response.StatusCode = 400;
+                await context.Response.WriteAsync(badRequestException.Message);
+            }
             catch (NotFoundException notFoundException)
             {
                 context.Response.StatusCode = 404;
                 await context.Response.WriteAsync(notFoundException.Message);
+            }
+            catch (ForbiddenMoveException forbiddenMoveException)
+            {
+                context.Response.StatusCode = 400;
+                await context.Response.WriteAsync(forbiddenMoveException.Message);
+            }
+            catch (Exceptions.UnauthorizedAccessException unauthorizedAccessException)
+            {
+                context.Response.StatusCode = 401;
+                await context.Response.WriteAsync(unauthorizedAccessException.Message);
             }
             catch (Exception ex)
             {

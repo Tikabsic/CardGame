@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTO
 {
-    internal class LoginUserDTO
+    public class LoginUserDTO
     {
         [Required]
         [RegularExpression(@"^[a-zA-Z0-9]+$")]

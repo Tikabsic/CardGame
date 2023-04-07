@@ -1,7 +1,6 @@
 ﻿using Domain.Entities;
-using Application.Interfaces.Repositories;
 using Infrastruct.Persistence;
-
+using Application.Interfaces.InfrastructureRepositories;
 
 namespace Infrastruct.Repositories
 {
@@ -16,7 +15,7 @@ namespace Infrastruct.Repositories
 
         public async Task AddUser(User user)
         {
-            await _dbContext.User.AddAsync(user);
+            await _dbContext.Users.AddAsync(user);
 
             await _dbContext.SaveChangesAsync();
 

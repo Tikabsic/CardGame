@@ -13,7 +13,7 @@ namespace Application.DTO
         [RegularExpression(@"^[a-zA-Z0-9]+$")]
         public string Name { get; set; }
         [Required]
-        [RegularExpression(@"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).{8,}$")]
+        [RegularExpression(@"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).{6,}$")]
         public string Password { get; set; }
         public string ConfirmPassowrd { get; set; }
 

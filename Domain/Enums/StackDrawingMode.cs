@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Domain.Enums
 {
-    public enum Roles
+    public enum StackDrawingMode
     {
-        Player = 1,
-        RoomAdmin = 2,
+        All = 1,
+        ThreeCards = 2,
     }
 }

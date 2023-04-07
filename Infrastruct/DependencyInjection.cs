@@ -1,15 +1,12 @@
 ﻿using Application.Data;
 using Application.Interfaces;
-using Application.Interfaces.Repositories;
-using Application.Services;
+using Application.Interfaces.InfrastructureRepositories;
 using Infrastruct.Persistence;
 using Infrastruct.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
-using NLog.Web;
+
 
 
 namespace Infrastruct

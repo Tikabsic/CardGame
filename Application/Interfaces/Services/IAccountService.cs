@@ -1,4 +1,6 @@
 ﻿using Application.DTO;
+using Domain.Entities.PlayerEntities;
+using Microsoft.AspNetCore.Authentication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,8 @@ namespace Application.Interfaces.Services
 {
     public interface IAccountService
     {
-        Task RegisterUser(RegisterUserDTO dto);
+        Task<string> GetUserInfo();
+        Task<List<FluentValidation.Results.ValidationFailure>> RegisterUser(RegisterUserDTO dto);
+        Task<string> GenerateJWT(LoginUserDTO dto);
     }
 }

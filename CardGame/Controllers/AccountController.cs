@@ -1,8 +1,8 @@
 ﻿using Application.DTO;
-using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Reflection.Metadata.Ecma335;
 
 namespace CardGame.Controllers
 {
@@ -19,8 +19,21 @@ namespace CardGame.Controllers
         [HttpPost("register")]
         public async Task<ActionResult> RegisterUser([FromBody] RegisterUserDTO dto)
         {
-            await _service.RegisterUser(dto);
-            return Ok($"Welcome {dto.Name} !");
+            var registerUser = await _service.RegisterUser(dto);
+
+            if (registerUser.Count > 1)
+            {
+                return BadRequest(registerUser);
+            }
+
+            return Ok($"Register complete.");
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult> Login(LoginUserDTO dto)
+        {
+            var token = await _service.GenerateJWT(dto);
+            return Ok(token);
         }
     }
 }

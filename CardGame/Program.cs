@@ -1,6 +1,9 @@
 using Infrastruct;
 using Application;
 using Application.Middleware;
+using FluentValidation.AspNetCore;
+using Domain;
+using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers();
+builder.Services.AddFluentValidation(x =>
+{
+    x.ImplicitlyValidateChildProperties = true;
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -15,7 +22,8 @@ builder.Services.AddSwaggerGen();
 //Dependency injection configuration
 builder.Services
     .AddInfrastructure(builder.Configuration)
-    .AddAplication();
+    .AddAplication(builder.Configuration)
+    .AddDomain();
 
 var app = builder.Build();
 
@@ -27,6 +35,10 @@ if (app.Environment.IsDevelopment())
 }
 //Middlewares
 app.UseMiddleware<ErrorHandlingMiddleware>();
+
+app.UseAuthentication();
+
+app.UseRouting();
 
 app.UseHttpsRedirection();
 

@@ -1,13 +1,13 @@
-﻿using Domain.Enums;
+﻿using Domain.Entities.CardEntities;
+using Domain.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Domain.Entities
+namespace Domain.Entities.PlayerEntities
 {
     [NotMapped]
     public class Player
     {
-        public int UserId { get; set; }
-        public User User { get; set; }
+        public int Id { get; set; }
         public Roles Role { get; set; }
         public string Name { get; set; }
         public List<Card> Hand { get; set; } = new List<Card>();

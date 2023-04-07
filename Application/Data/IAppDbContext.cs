@@ -7,7 +7,7 @@ namespace Application.Data
 {
     public interface IAppDbContext
     {
-        DbSet<User> User { get; set; }
+        DbSet<User> Users { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
