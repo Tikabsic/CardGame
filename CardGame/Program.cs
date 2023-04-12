@@ -18,6 +18,16 @@ builder.Services.AddFluentValidation(x =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//CORS Configuration
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Client", builder =>
+        builder.AllowAnyMethod()
+        .AllowAnyHeader()
+        .WithOrigins("http://127.0.0.1:5500")
+
+    );
+});
 
 //Dependency injection configuration
 builder.Services
@@ -33,6 +43,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("Client");
+
 //Middlewares
 app.UseMiddleware<ErrorHandlingMiddleware>();
 

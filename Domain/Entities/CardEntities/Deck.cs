@@ -6,7 +6,7 @@ namespace Domain.Entities.CardEntities
     [NotMapped]
     public class Deck
     {
-        public List<Card> _cards = new List<Card>();
+        public List<Card> _cards { get; set; }
 
         public Deck()
         {

@@ -1,8 +1,9 @@
 ﻿using Application.DTO;
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using System.Reflection.Metadata.Ecma335;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace CardGame.Controllers
 {
@@ -23,17 +24,36 @@ namespace CardGame.Controllers
 
             if (registerUser.Count > 1)
             {
-                return BadRequest(registerUser);
+                return BadRequest(registerUser.ToString());
             }
 
             return Ok($"Register complete.");
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult> Login(LoginUserDTO dto)
+        public async Task<ActionResult> Login([FromBody] LoginUserDTO dto)
         {
-            var token = await _service.GenerateJWT(dto);
-            return Ok(token);
+            var request = await _service.Login(dto);
+
+            return Ok($"{request}");
+        }
+
+        [HttpPost("NameValidate")]
+        public async Task<ActionResult> NameValidate([FromBody] RegisterNameRequestDTO dto)
+        {
+            if (dto.Name == null)
+            {
+                return BadRequest("Invalid data");
+            }
+
+            var request = await _service.IsUserNameTaken(dto.Name);
+
+            if (!request)
+            {
+                return Ok(dto.Name);
+            }
+
+            return BadRequest();
         }
     }
 }

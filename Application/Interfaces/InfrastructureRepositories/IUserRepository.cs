@@ -9,6 +9,7 @@ namespace Application.Interfaces.InfrastructureRepositories
 {
     public interface IUserRepository
     {
-        Task<User> GetByName(string Name);
+        Task<User> GetUserByName(string Name);
+        Task<bool> IsUserNameTaken(string name);
     }
 }

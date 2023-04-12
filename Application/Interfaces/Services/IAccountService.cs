@@ -14,6 +14,7 @@ namespace Application.Interfaces.Services
     {
         Task<string> GetUserInfo();
         Task<List<FluentValidation.Results.ValidationFailure>> RegisterUser(RegisterUserDTO dto);
-        Task<string> GenerateJWT(LoginUserDTO dto);
+        Task<string> Login(LoginUserDTO dto);
+        Task<bool> IsUserNameTaken(string name);
     }
 }

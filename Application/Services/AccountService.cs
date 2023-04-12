@@ -25,13 +25,14 @@ namespace Application.Services
     {
         private readonly IPasswordHasher _passwordHasher;
         private readonly IAccountRepository _accountRepository;
+        private readonly IUserRepository _userRepository;
         private readonly ILogger _logger;
         private readonly IAppDbContext _dbContext;
         private readonly AuthenticationSettings _authenticationSettings;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
 
-        public AccountService(IPasswordHasher passwordHasher, IAccountRepository accountRepository, ILogger<AccountService> logger, IAppDbContext dbContext, AuthenticationSettings authenticationSettings, IHttpContextAccessor httpContextAccessor, IMapper mapper)
+        public AccountService(IPasswordHasher passwordHasher, IAccountRepository accountRepository, ILogger<AccountService> logger, IAppDbContext dbContext, AuthenticationSettings authenticationSettings, IHttpContextAccessor httpContextAccessor, IMapper mapper, IUserRepository userRepository)
         {
             _passwordHasher = passwordHasher;
             _accountRepository = accountRepository;
@@ -40,6 +41,7 @@ namespace Application.Services
             _authenticationSettings = authenticationSettings;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
+            _userRepository = userRepository;
         }
 
         public async Task<string> GetUserInfo()
@@ -47,10 +49,21 @@ namespace Application.Services
             var user = await _httpContextAccessor.HttpContext.AuthenticateAsync();
             var claims = user.Principal.Claims.Select(c => new { Type = c.Type, Value = c.Value });
 
-            // Możesz zwrócić listę claimów jako JSON, tekst czy inny format, w zależności od Twoich potrzeb
             var userInfo = JsonConvert.SerializeObject(claims, Formatting.Indented);
 
             return userInfo;
+        }
+
+        public async Task<bool> IsUserNameTaken(string name)
+        {
+            var result = await _userRepository.IsUserNameTaken(name);
+
+            if (result)
+            {
+                throw new BadRequestException("Username already taken.");
+            }
+
+            return result;
         }
 
         public async Task<List<FluentValidation.Results.ValidationFailure>> RegisterUser(RegisterUserDTO dto)
@@ -74,7 +87,7 @@ namespace Application.Services
             return result.Errors;
         }
 
-        public async Task<string> GenerateJWT(LoginUserDTO dto)
+        public async Task<string> Login(LoginUserDTO dto)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Name == dto.Name);
 

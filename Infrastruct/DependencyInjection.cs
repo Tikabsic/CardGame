@@ -19,12 +19,10 @@ namespace Infrastruct
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("CardGameDatabase")));
 
-            services.AddScoped<IAppDbContext, AppDbContext>();
 
             //Infrastructure
-            services.AddScoped<IAppDbContext, AppDbContext>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
-
+            services.AddScoped<IAppDbContext, AppDbContext>();
 
             //services.AddLogging(loggingBuilder =>
             //{

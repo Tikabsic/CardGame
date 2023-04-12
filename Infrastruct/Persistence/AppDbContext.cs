@@ -9,8 +9,7 @@ namespace Infrastruct.Persistence
     {
         public DbSet<User> Users { get; set; }
 
-        public AppDbContext(DbContextOptions<AppDbContext> options ) 
-            : base( options )
+        public AppDbContext(DbContextOptions<AppDbContext> options ) : base( options )
         {
 
         }
@@ -19,6 +18,5 @@ namespace Infrastruct.Persistence
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         }
-
     }
 }

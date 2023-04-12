@@ -21,7 +21,8 @@ namespace Application.AutoMapper
             CreateMap<RegisterUserDTO, User>();
 
             CreateMap<LoginUserDTO, User>();
-   
+
+            CreateMap<RegisterNameRequestDTO, User>();
         }
     }
 }
