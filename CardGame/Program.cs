@@ -24,6 +24,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Client", builder =>
         builder.AllowAnyMethod()
         .AllowAnyHeader()
+        .AllowCredentials()
         .WithOrigins("http://127.0.0.1:5500")
 
     );
@@ -31,9 +32,10 @@ builder.Services.AddCors(options =>
 
 //Dependency injection configuration
 builder.Services
+    .AddDomain()
     .AddInfrastructure(builder.Configuration)
-    .AddAplication(builder.Configuration)
-    .AddDomain();
+    .AddAplication(builder.Configuration);
+
 
 
 
@@ -58,6 +60,7 @@ app.UseAuthentication();
 app.UseRouting();
 
 app.MapHub<GameRoomHub>("/Room");
+app.MapHub<GameRoomHub>("/Room/{roomId}");
 
 app.UseHttpsRedirection();
 

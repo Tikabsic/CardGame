@@ -3,6 +3,7 @@ using Domain.Entities.RoomEntities;
 using Domain.EntityInterfaces;
 using Domain.EntityServices;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
 
 namespace Domain
 {
@@ -13,9 +14,11 @@ namespace Domain
 
             services.AddScoped<IStackEntityService, StackEntityService>();
             services.AddScoped<IRoomEntityService, RoomEntityService>();
+            services.AddScoped<IDeckEntityService, DeckEntityService>();
 
             services.AddScoped<Stack>();
             services.AddScoped<Room>();
+            services.AddScoped<Deck>();
 
             return services;
         }

@@ -2,7 +2,7 @@
 {
     public enum CardSuit
     {
-        Spades,
+        Spades = 1,
         Clubs,
         Diamonds,
         Hearts

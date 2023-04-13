@@ -6,11 +6,13 @@ using Application.Interfaces.Services;
 using Application.Middleware;
 using Application.Services;
 using AutoMapper;
+using Domain.Entities.RoomEntities;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text;
 
@@ -30,6 +32,9 @@ namespace Application
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IRoomService, RoomService>();
             services.AddScoped<IValidator<RegisterUserDTO>, RegisterUserValidator>();
+            services.AddScoped<IPlayerService, PlayerService>();
+            services.AddScoped<ConcurrentBag<Room>>();
+
             services.AddSingleton(authenticationSettings);
             services.AddHttpContextAccessor();
             services.AddSignalR();
