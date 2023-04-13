@@ -6,12 +6,15 @@ namespace Domain.Entities.CardEntities
     [NotMapped]
     public class Deck
     {
-        public List<Card> _cards { get; set; }
+        public List<Card>? _cards { get; set; }
 
         public Deck()
         {
+            GenerateDeck();
+
+            ShuffleDeck();
         }
-        
+
         public List<Card> GenerateDeck()
         {
             _cards = new List<Card>();
@@ -21,7 +24,6 @@ namespace Domain.Entities.CardEntities
 
                 foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
                 {
-
                     _cards.Add(new Card { Value = (CardValue)i, Suit = suit });
                 }
             }
@@ -33,9 +35,7 @@ namespace Domain.Entities.CardEntities
 
             for (int i = _cards.Count - 1; i >= 1; i--)
             {
-
                 int j = random.Next(i + 1);
-
 
                 Card temp = _cards[i];
                 _cards[i] = _cards[j];

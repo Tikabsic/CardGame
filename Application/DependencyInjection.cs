@@ -7,6 +7,7 @@ using Application.Middleware;
 using Application.Services;
 using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -31,6 +32,8 @@ namespace Application
             services.AddScoped<IValidator<RegisterUserDTO>, RegisterUserValidator>();
             services.AddSingleton(authenticationSettings);
             services.AddHttpContextAccessor();
+            services.AddSignalR();
+
             //Tools
             services.AddAutoMapper(Assembly.GetAssembly(typeof(UserMappingProfile)));
 

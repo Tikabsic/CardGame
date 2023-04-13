@@ -3,7 +3,7 @@ using Application;
 using Application.Middleware;
 using FluentValidation.AspNetCore;
 using Domain;
-using Microsoft.AspNetCore.Builder;
+using Application.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,7 +35,11 @@ builder.Services
     .AddAplication(builder.Configuration)
     .AddDomain();
 
+
+
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -52,6 +56,8 @@ app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseAuthentication();
 
 app.UseRouting();
+
+app.MapHub<GameRoomHub>("/Room");
 
 app.UseHttpsRedirection();
 

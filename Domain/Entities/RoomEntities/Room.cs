@@ -32,7 +32,6 @@ namespace Domain.Entities.RoomEntities
             return new string(id);
         }
 
-
         public Room()
         {
             RoomId = RoomIdGenerator();
@@ -41,9 +40,7 @@ namespace Domain.Entities.RoomEntities
             Deck.GenerateDeck();
             Deck.ShuffleDeck();
 
-            Stack = new Stack();
-
-            GameRules = new RoomRules();
+            Stack = new Stack();       
         }
     }
 }

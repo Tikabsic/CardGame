@@ -7,12 +7,6 @@ namespace Domain.EntityServices
 {
     public class RoomEntityService : IRoomEntityService
     {
-        private readonly Room _room;
-
-        public RoomEntityService(Room room)
-        {
-            _room = room;
-        }
 
         public Room CreateRoom(Player player)
         {
@@ -26,5 +20,6 @@ namespace Domain.EntityServices
 
             return room;
         }
+
     }
 }
