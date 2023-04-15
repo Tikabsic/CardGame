@@ -1,4 +1,6 @@
-﻿using Domain.Entities.CardEntities;
+﻿using Domain.Entities;
+using Domain.Entities.CardEntities;
+using Domain.Entities.PlayerEntities;
 using Domain.Entities.RoomEntities;
 using Domain.EntityInterfaces;
 using Domain.EntityServices;
@@ -16,9 +18,7 @@ namespace Domain
             services.AddScoped<IRoomEntityService, RoomEntityService>();
             services.AddScoped<IDeckEntityService, DeckEntityService>();
 
-            services.AddScoped<Stack>();
-            services.AddScoped<Room>();
-            services.AddScoped<Deck>();
+            services.AddSingleton<ILobbyCounter, LobbyCounter>();
 
             return services;
         }

@@ -1,48 +1,40 @@
 ﻿using Application.Exceptions;
+using Application.Interfaces.Services;
 using AutoMapper;
 using Domain.Entities.PlayerEntities;
 using Domain.Entities.RoomEntities;
 using Domain.EntityInterfaces;
 using Domain.Enums;
 using Microsoft.AspNetCore.SignalR;
-using System.Collections.Concurrent;
+
 
 namespace Application.Hubs
 {
-    public class GameRoomHub : Hub
+    public class MainHub : Hub
     {
-        private readonly IRoomEntityService _roomEntityService;
+        private readonly IRoomService _roomService;
+        private readonly IAccountService _accountService;
         private readonly IMapper _mapper;
-        private readonly ConcurrentBag<Room> _rooms = new ConcurrentBag<Room>();
-        private readonly ConcurrentBag<Player> _players = new ConcurrentBag<Player>();
-        public GameRoomHub(IRoomEntityService roomEntityService, ConcurrentBag<Room> rooms, IMapper mapper)
+        private readonly ILobbyCounter _counter;
+        public MainHub(IRoomService roomService, IMapper mapper, ILobbyCounter counter, IAccountService accountService)
         {
-            _roomEntityService = roomEntityService;
-            _rooms = rooms;
+            _roomService = roomService;
             _mapper = mapper;
+            _counter = counter;
+            _accountService = accountService;
         }
 
-        public Player MapPlayer()
-        {
-            var user = Context.User.Claims;
 
-            var player = _mapper.Map<Player>(user);
-            player.ConnectionId = Context.ConnectionId;
-
-            return player;
-        }
-
-        [HubMethodName("OnConnectedAsync")]
-        public async Task OnConnectedAsync()
+        public override async Task OnConnectedAsync()
         {
 
-            var player = MapPlayer();
+            var player = await _accountService.GetPlayer();
 
             player.ConnectionId = Context.ConnectionId;
 
-            _players.Add(player);
+            _counter.IncreasePlayersList(player);
 
-            await Clients.All.SendAsync("UpdatePlayersCount", _players.Count);
+            await Clients.All.SendAsync("UpdatePlayersCount", _counter.ShowPlayersCount());
 
             await base.OnConnectedAsync();
         }
@@ -51,18 +43,18 @@ namespace Application.Hubs
         {
 
             var playerId = Context.ConnectionId;
-            var player = _players.FirstOrDefault(p => p.ConnectionId == playerId);
+            var player = _counter.GetPlayers().FirstOrDefault(p => p.ConnectionId == playerId);
 
-            _players.TryTake(out player);
+            _counter.DecreasePlayersList(player);
 
-            await Clients.All.SendAsync("UpdatePlayersCount", _players.Count);
+            await Clients.All.SendAsync("UpdatePlayersCount", _counter.ShowPlayersCount());
 
             await base.OnDisconnectedAsync(exception);
         }
 
         public async Task<int> OnlinePlayersCount()
         {
-            var playersOnlineCount = _players.Count;
+            var playersOnlineCount = _counter.ShowPlayersCount();
 
             await Clients.All.SendAsync("PlayersOnline", playersOnlineCount);
 
@@ -72,11 +64,11 @@ namespace Application.Hubs
         // Room actions
         public async Task<Room> CreateRoom()
         {
-            var player = MapPlayer();
+            var player = await _accountService.GetPlayer();
 
-            var gameRoom = _roomEntityService.CreateRoom(player);
+            var gameRoom = _roomService.CreateRoom(player);
 
-            _rooms.Add(gameRoom);
+            _counter.IncreaseRoomsList(gameRoom);
 
             await Groups.AddToGroupAsync(player.ConnectionId, gameRoom.RoomId);
 
@@ -87,8 +79,10 @@ namespace Application.Hubs
 
         public async Task<Numbers> setNumberOfRounds(Numbers numberOfRounds)
         {
-            var player = MapPlayer();
-            var gameRoom = _rooms.FirstOrDefault(r => r.RoomAdmin == player);
+            var player = await _accountService.GetPlayer();
+
+            var gameRoom = _counter.GetRooms().FirstOrDefault(r => r.RoomAdmin == player);
+
 
             if (gameRoom is null)
             {
@@ -109,8 +103,8 @@ namespace Application.Hubs
 
         public async Task<Room> JoinRoomById(string roomId)
         {
-            var player = MapPlayer();
-            var gameRoom = _rooms.First(r => r.RoomId == roomId);
+            var player = await _accountService.GetPlayer();
+            var gameRoom = _counter.GetRooms().First(r => r.RoomId == roomId);
 
             if (gameRoom is null)
             {
@@ -123,6 +117,14 @@ namespace Application.Hubs
             await Groups.AddToGroupAsync(player.ConnectionId, gameRoom.RoomId);
 
             return gameRoom;
+        }
+
+        public async Task<string> ShowPlayerName()
+        {
+            var playerName = _counter.GetPlayers().Select( p => p.Name).FirstOrDefault();
+            await Clients.Caller.SendAsync("GetPlayerName", playerName);
+
+            return playerName;
         }
     }
 }

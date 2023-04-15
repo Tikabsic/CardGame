@@ -59,8 +59,7 @@ app.UseAuthentication();
 
 app.UseRouting();
 
-app.MapHub<GameRoomHub>("/Room");
-app.MapHub<GameRoomHub>("/Room/{roomId}");
+app.MapHub<MainHub>("/Room");
 
 app.UseHttpsRedirection();
 

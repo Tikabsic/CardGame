@@ -6,6 +6,6 @@ namespace Application.Interfaces.Services
 {
     public interface IRoomService
     {
-        Task<Room> CreateRoom(Player player);
+        Room CreateRoom(Player player);
     }
 }

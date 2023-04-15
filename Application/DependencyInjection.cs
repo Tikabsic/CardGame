@@ -2,16 +2,19 @@
 using Application.AutoMapper;
 using Application.DTO;
 using Application.DTO.Validators;
+using Application.Hubs;
 using Application.Interfaces.Services;
 using Application.Middleware;
 using Application.Services;
 using AutoMapper;
 using Domain.Entities.RoomEntities;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text;
@@ -33,30 +36,45 @@ namespace Application
             services.AddScoped<IRoomService, RoomService>();
             services.AddScoped<IValidator<RegisterUserDTO>, RegisterUserValidator>();
             services.AddScoped<IPlayerService, PlayerService>();
-            services.AddScoped<ConcurrentBag<Room>>();
 
             services.AddSingleton(authenticationSettings);
-            services.AddHttpContextAccessor();
             services.AddSignalR();
 
             //Tools
             services.AddAutoMapper(Assembly.GetAssembly(typeof(UserMappingProfile)));
-
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore // or ReferenceLoopHandling.Serialize
+            };
 
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = "Bearer";
                 options.DefaultScheme = "Bearer";
                 options.DefaultChallengeScheme = "Bearer";
-            }).AddJwtBearer(config =>
+            }).AddJwtBearer(options =>
             {
-                config.RequireHttpsMetadata = false;
-                config.SaveToken = true;
-                config.TokenValidationParameters = new TokenValidationParameters
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidIssuer = authenticationSettings.JWTIssuer,
                     ValidAudience = authenticationSettings.JWTIssuer,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JWTKey)),
+                };
+
+                options.Events = new JwtBearerEvents()
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/Room")))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
                 };
             });
 

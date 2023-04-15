@@ -12,19 +12,14 @@ namespace Application.Services
 {
     public class RoomService : IRoomService
     {
-        private List<Room> _rooms = new List<Room>();
         private readonly IRoomEntityService _service;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IMapper _mapper;
 
-        public RoomService(IRoomEntityService service, IHttpContextAccessor httpContextAccessor, IMapper mapper)
+        public RoomService(IRoomEntityService service)
         {
             _service = service;
-            _httpContextAccessor = httpContextAccessor;
-            _mapper = mapper;
         }
 
-        public async Task<Room> CreateRoom(Player player)
+        public  Room CreateRoom(Player player)
         {
             var room = _service.CreateRoom(player);
 

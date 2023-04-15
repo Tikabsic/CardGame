@@ -18,6 +18,7 @@ using System.Text;
 using Domain.Entities.PlayerEntities;
 using AutoMapper;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace Application.Services
 {
@@ -44,14 +45,22 @@ namespace Application.Services
             _userRepository = userRepository;
         }
 
-        public async Task<string> GetUserInfo()
+        public async Task<Player> GetPlayer()
         {
-            var user = await _httpContextAccessor.HttpContext.AuthenticateAsync();
-            var claims = user.Principal.Claims.Select(c => new { Type = c.Type, Value = c.Value });
+            var authenticateResult = await _httpContextAccessor.HttpContext.AuthenticateAsync();
+            if (authenticateResult?.Principal != null)
+            {
+                var claims = authenticateResult.Principal.Claims.Select(c => new { c.Type, c.Value });
 
-            var userInfo = JsonConvert.SerializeObject(claims, Formatting.Indented);
-
-            return userInfo;
+                var player = new Player()
+                {
+                    Id = int.Parse(claims.FirstOrDefault(x => x.Type == "Id")?.Value),
+                    Name = claims.FirstOrDefault(x => x.Type == "Name")?.Value,
+                    UserScore = int.Parse(claims.FirstOrDefault(x => x.Type == "UserScore")?.Value)
+                };
+                return player;
+            }
+            return null;
         }
 
         public async Task<bool> IsUserNameTaken(string name)

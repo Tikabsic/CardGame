@@ -11,10 +11,11 @@ namespace Application.AutoMapper
         public UserMappingProfile()
         {
 
-            CreateMap<ClaimsPrincipal, Player>()
-                .ForMember(p => p.Id, c => c.MapFrom(src => int.Parse(src.FindFirstValue("Id"))))
-                .ForMember(p => p.Name, c => c.MapFrom(src => src.FindFirstValue("Name")))
-                .ForMember(p => p.UserScore, c => c.MapFrom(src => int.Parse(src.FindFirstValue("UserScore"))));
+            CreateMap<IEnumerable<System.Security.Claims.Claim>, Player>()
+                .ForMember(p => p.Id, c => c.MapFrom(src => int.Parse(src.FirstOrDefault(x => x.Type == "Id").Value)))
+                .ForMember(p => p.Name, c => c.MapFrom(src => src.FirstOrDefault(x => x.Type == "UserScore").Value))
+                .ForMember(p => p.UserScore, c => c.MapFrom(src => int.Parse(src.FirstOrDefault(x => x.Type =="UserScore").Value)));
+
 
             CreateMap<User, Player>();
 
