@@ -12,6 +12,7 @@ namespace Application.Interfaces.Services
 {
     public interface IAccountService
     {
+        bool isPlayerOnline(LoginUserDTO dto);
         Task<Player> GetPlayer();
         Task<List<FluentValidation.Results.ValidationFailure>> RegisterUser(RegisterUserDTO dto);
         Task<string> Login(LoginUserDTO dto);

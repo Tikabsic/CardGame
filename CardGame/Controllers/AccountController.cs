@@ -38,6 +38,17 @@ namespace CardGame.Controllers
             return Ok($"{request}");
         }
 
+        [HttpPost("isOnline")]
+        public async Task<ActionResult> IsPlayerOnline(LoginUserDTO dto)
+        {
+            var request = _service.isPlayerOnline(dto);
+            if (request)
+            {
+                return BadRequest(request);
+            }
+            return Ok(request);
+        }
+
         [HttpPost("NameValidate")]
         public async Task<ActionResult> NameValidate([FromBody] RegisterNameRequestDTO dto)
         {

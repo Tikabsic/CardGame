@@ -14,6 +14,19 @@ namespace Domain.Entities
         private List<Player> Players = new List<Player>();
         private List<Room> Rooms = new List<Room>();
 
+        public Player GetPlayer(string connectionId)
+        {
+            var player = Players.First(p => p.ConnectionId == connectionId);
+
+            return player;
+        }
+        public Room GetRoom(string roomId)
+        {
+            var room = Rooms.First(r => r.RoomId == roomId);
+            return room;
+        }
+
+
         public List<Room> GetRooms()
         {
             return Rooms;

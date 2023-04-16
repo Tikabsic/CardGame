@@ -9,13 +9,16 @@ namespace Domain.EntityServices
 
         public void stackDrawingMode(Stack stack)
         {
-            var firstCard = stack.Cards.ToArray()[0];
-
-            var desiredCard = stack.Cards.First(x => x.Value == CardValue.Nine && x.Suit == CardSuit.Hearts);
-
-            if (firstCard == desiredCard)
+            if (stack.Cards != null)
             {
-                stack.Mode = StackDrawingMode.ThreeCards;
+                var firstCard = stack.Cards.ToArray()[0];
+
+                var desiredCard = stack.Cards.First(x => x.Value == CardValue.Nine && x.Suit == CardSuit.Hearts);
+
+                if (firstCard == desiredCard)
+                {
+                    stack.Mode = StackDrawingMode.ThreeCards;
+                }
             }
             else
             {

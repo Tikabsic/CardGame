@@ -26,7 +26,6 @@ namespace CardGame.Controllers
         public async Task<Player> GetPlayerAsync()
         {
 
-
             var player =  await _accountService.GetPlayer();
             if (player != null)
             {

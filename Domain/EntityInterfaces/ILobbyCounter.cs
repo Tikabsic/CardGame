@@ -10,6 +10,8 @@ namespace Domain.EntityInterfaces
 {
     public interface ILobbyCounter
     {
+        Player GetPlayer(string connectionId);
+        Room GetRoom(string roomId);
         List<Room> GetRooms();
         List<Player> GetPlayers();
         void IncreasePlayersList(Player player);

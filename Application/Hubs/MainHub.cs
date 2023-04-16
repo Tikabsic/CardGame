@@ -1,10 +1,11 @@
 ﻿using Application.Exceptions;
 using Application.Interfaces.Services;
+using Application.Services;
 using AutoMapper;
-using Domain.Entities.PlayerEntities;
 using Domain.Entities.RoomEntities;
 using Domain.EntityInterfaces;
 using Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 
@@ -23,7 +24,6 @@ namespace Application.Hubs
             _counter = counter;
             _accountService = accountService;
         }
-
 
         public override async Task OnConnectedAsync()
         {
@@ -62,10 +62,16 @@ namespace Application.Hubs
         }
 
         // Room actions
+        [Authorize]
         public async Task<Room> CreateRoom()
         {
-            var player = await _accountService.GetPlayer();
+            var player = _counter.GetPlayer(Context.ConnectionId);
 
+            if (_counter.GetRooms().Any(r => r.Players.Contains(player)))
+            {
+                await Clients.Caller.SendAsync("AlreadyInGame");
+                throw new BadRequestException("Already in lobby.");
+            }
             var gameRoom = _roomService.CreateRoom(player);
 
             _counter.IncreaseRoomsList(gameRoom);
@@ -119,12 +125,5 @@ namespace Application.Hubs
             return gameRoom;
         }
 
-        public async Task<string> ShowPlayerName()
-        {
-            var playerName = _counter.GetPlayers().Select( p => p.Name).FirstOrDefault();
-            await Clients.Caller.SendAsync("GetPlayerName", playerName);
-
-            return playerName;
-        }
     }
 }

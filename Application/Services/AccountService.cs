@@ -19,6 +19,8 @@ using Domain.Entities.PlayerEntities;
 using AutoMapper;
 using Newtonsoft.Json;
 using System.Reflection;
+using Domain.EntityInterfaces;
+using Microsoft.AspNetCore.Server.IIS.Core;
 
 namespace Application.Services
 {
@@ -32,8 +34,9 @@ namespace Application.Services
         private readonly AuthenticationSettings _authenticationSettings;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly ILobbyCounter _counter;
 
-        public AccountService(IPasswordHasher passwordHasher, IAccountRepository accountRepository, ILogger<AccountService> logger, IAppDbContext dbContext, AuthenticationSettings authenticationSettings, IHttpContextAccessor httpContextAccessor, IMapper mapper, IUserRepository userRepository)
+        public AccountService(IPasswordHasher passwordHasher, IAccountRepository accountRepository, ILogger<AccountService> logger, IAppDbContext dbContext, AuthenticationSettings authenticationSettings, IHttpContextAccessor httpContextAccessor, IMapper mapper, IUserRepository userRepository, ILobbyCounter counter)
         {
             _passwordHasher = passwordHasher;
             _accountRepository = accountRepository;
@@ -43,6 +46,22 @@ namespace Application.Services
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
             _userRepository = userRepository;
+            _counter = counter;
+        }
+
+
+        public bool isPlayerOnline(LoginUserDTO dto)
+        {
+            var userName = dto.Name;
+            var isPlayerOnline = _counter.GetPlayers().Any(u => u.Name == userName);
+            var isPlayerInGame = _counter.GetRooms().Any(r => r.Players.Exists(x => x.Name == userName));
+
+            if (isPlayerOnline || isPlayerInGame)
+            {
+                throw new BadRequestException("Player already online.");
+            }
+
+            return false;
         }
 
         public async Task<Player> GetPlayer()
