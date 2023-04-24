@@ -1,15 +1,15 @@
-﻿using Domain.EntityInterfaces;
-using Domain.Entities.CardEntities;
+﻿using Domain.Entities.CardEntities;
 using Domain.Enums;
+using Domain.Interfaces;
 
 namespace Domain.EntityServices
-{
+{ 
     public class StackEntityService : IStackEntityService
     {
 
         public void stackDrawingMode(Stack stack)
         {
-            if (stack.Cards != null)
+            if (stack.Cards != null && stack.Cards.Any())
             {
                 var firstCard = stack.Cards.ToArray()[0];
 

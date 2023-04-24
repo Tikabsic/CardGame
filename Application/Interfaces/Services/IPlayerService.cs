@@ -1,4 +1,5 @@
-﻿using Domain.Entities.PlayerEntities;
+﻿using Application.Hubs;
+using Domain.Entities.PlayerEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +10,6 @@ namespace Application.Interfaces.Services
 {
     public interface IPlayerService
     {
+
     }
 }

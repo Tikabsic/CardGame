@@ -24,16 +24,12 @@ namespace Infrastruct
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<IAppDbContext, AppDbContext>();
 
-            //services.AddLogging(loggingBuilder =>
-            //{
-            //    loggingBuilder.ClearProviders();
-            //    loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-            //    loggingBuilder.AddNLog(configuration);
-            //});
-
             //Repositories
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IPlayerRepository, PlayerRepository>();
+            services.AddScoped<IRoomRepository, RoomRepository>();
+
             return services;
         }
     }

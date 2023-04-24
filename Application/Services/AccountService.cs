@@ -9,7 +9,6 @@ using Application.Interfaces.Services;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Http;
 using System.IdentityModel.Tokens.Jwt;
@@ -17,10 +16,7 @@ using System.Security.Claims;
 using System.Text;
 using Domain.Entities.PlayerEntities;
 using AutoMapper;
-using Newtonsoft.Json;
-using System.Reflection;
-using Domain.EntityInterfaces;
-using Microsoft.AspNetCore.Server.IIS.Core;
+
 
 namespace Application.Services
 {
@@ -29,34 +25,36 @@ namespace Application.Services
         private readonly IPasswordHasher _passwordHasher;
         private readonly IAccountRepository _accountRepository;
         private readonly IUserRepository _userRepository;
-        private readonly ILogger _logger;
+        private readonly IPlayerRepository _playerRepository;
+        private readonly IRoomRepository _roomRepository;
         private readonly IAppDbContext _dbContext;
         private readonly AuthenticationSettings _authenticationSettings;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
-        private readonly ILobbyCounter _counter;
 
-        public AccountService(IPasswordHasher passwordHasher, IAccountRepository accountRepository, ILogger<AccountService> logger, IAppDbContext dbContext, AuthenticationSettings authenticationSettings, IHttpContextAccessor httpContextAccessor, IMapper mapper, IUserRepository userRepository, ILobbyCounter counter)
+        public AccountService(IPasswordHasher passwordHasher, IAccountRepository accountRepository, IAppDbContext dbContext, AuthenticationSettings authenticationSettings, IHttpContextAccessor httpContextAccessor, IMapper mapper, IUserRepository userRepository, IPlayerRepository playerRepository, IRoomRepository roomRepository)
         {
             _passwordHasher = passwordHasher;
             _accountRepository = accountRepository;
-            _logger = logger;
             _dbContext = dbContext;
             _authenticationSettings = authenticationSettings;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
             _userRepository = userRepository;
-            _counter = counter;
+            _playerRepository = playerRepository;
+            _roomRepository = roomRepository;
         }
 
 
-        public bool isPlayerOnline(LoginUserDTO dto)
+        public async Task<bool> isPlayerOnline(LoginUserDTO dto)
         {
             var userName = dto.Name;
-            var isPlayerOnline = _counter.GetPlayers().Any(u => u.Name == userName);
-            var isPlayerInGame = _counter.GetRooms().Any(r => r.Players.Exists(x => x.Name == userName));
+            var players = await _playerRepository.GetPlayersAsync();
+            var rooms = await _roomRepository.GetRoomsAsync();
 
-            if (isPlayerOnline || isPlayerInGame)
+            var isPlayerInGame = rooms.Any(r => r.Players.Exists(x => x.Name == userName));
+
+            if (isPlayerInGame)
             {
                 throw new BadRequestException("Player already online.");
             }

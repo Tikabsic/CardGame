@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.CardEntities
 {
-    [NotMapped]
     public class Card
     {
+        [NotMapped]
         public CardValue Value { get; set; }
         public CardSuit Suit { get; set; }
     }

@@ -41,7 +41,7 @@ namespace CardGame.Controllers
         [HttpPost("isOnline")]
         public async Task<ActionResult> IsPlayerOnline(LoginUserDTO dto)
         {
-            var request = _service.isPlayerOnline(dto);
+            var request = await _service.isPlayerOnline(dto);
             if (request)
             {
                 return BadRequest(request);

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.EntityInterfaces
+namespace Domain.Interfaces
 {
     public interface IRoomEntityService
     {

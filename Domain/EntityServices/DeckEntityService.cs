@@ -1,12 +1,6 @@
 ﻿using Domain.Entities.CardEntities;
-using Domain.EntityInterfaces;
 using Domain.Enums;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Domain.Interfaces;
 
 namespace Domain.EntityServices
 {
@@ -14,13 +8,13 @@ namespace Domain.EntityServices
     {
         public void GenerateDeck(Deck deck)
         {
-            var cards = new ConcurrentStack<Card>();
+            var cards = new List<Card>();
 
             for (int i = (int)CardValue.Nine; i <= (int)CardValue.Ace; i++)
             {
                 foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
                 {
-                    cards.Push(new Card { Value = (CardValue)i, Suit = suit });
+                   cards.Add(new Card { Value = (CardValue)i, Suit = suit });
                 }
             }
 
@@ -45,7 +39,7 @@ namespace Domain.EntityServices
 
             foreach (var card in cardArray)
             {
-                deck.Cards.Push(card);
+                deck.Cards.Add(card);
             }
         }
     }

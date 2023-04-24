@@ -1,7 +1,6 @@
-﻿
-using Domain.Entities.CardEntities;
+﻿using Domain.Entities.CardEntities;
 
-namespace Domain.EntityInterfaces
+namespace Domain.Interfaces
 {
     public interface IStackEntityService
     {

@@ -9,7 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-
 builder.Services.AddControllers();
 builder.Services.AddFluentValidation(x =>
 {
@@ -26,7 +25,6 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader()
         .AllowCredentials()
         .WithOrigins("http://127.0.0.1:5500")
-
     );
 });
 
@@ -36,12 +34,7 @@ builder.Services
     .AddInfrastructure(builder.Configuration)
     .AddAplication(builder.Configuration);
 
-
-
-
 var app = builder.Build();
-
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -59,7 +52,8 @@ app.UseAuthentication();
 
 app.UseRouting();
 
-app.MapHub<MainHub>("/Room");
+app.MapHub<MainHub>("/main");
+app.MapHub<GameRoomHub>("/room");
 
 app.UseHttpsRedirection();
 

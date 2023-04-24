@@ -1,6 +1,6 @@
 ﻿using Domain.Entities.PlayerEntities;
 using Domain.Entities.RoomEntities;
-using Domain.EntityInterfaces;
+using Domain.Interfaces;
 
 namespace Domain.EntityServices
 {
@@ -15,12 +15,29 @@ namespace Domain.EntityServices
             _deckService = deckService;
         }
 
+        private string RoomIdGenerator()
+        {
+            var numberOfDigits = 6;
+            var chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            var rng = new Random();
+            var id = new char[numberOfDigits];
+
+            for (int i = 0; i < numberOfDigits; i++)
+            {
+                id[i] = chars[rng.Next(chars.Length)];
+            }
+
+            return new string(id);
+        }
+
         public Room CreateRoom(Player player)
         {
             var room = new Room();
 
+            room.RoomId = RoomIdGenerator();
+
             room.Players.Add(player);
-            room.RoomAdmin = player;
+
             player.Role = Enums.Roles.RoomAdmin;
 
             _deckService.GenerateDeck(room.Deck);
