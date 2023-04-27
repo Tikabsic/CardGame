@@ -1,5 +1,4 @@
-﻿using Domain.Entities.PlayerEntities;
-using Domain.Entities.RoomEntities;
+﻿using Domain.Entities.RoomEntities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -18,6 +17,14 @@ namespace Infrastruct.Persistence.EntitiesConfig
                 .WithOne(c => c.Room)
                 .HasForeignKey(c => c.RoomId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(r => r.Players)
+                .WithOne(p => p.GameRoom)
+                .HasForeignKey(p => p.GameRoomId);
+
+            builder.HasMany(r => r.Chat)
+                .WithOne(m => m.Room)
+                .HasForeignKey(m => m.RoomId);
         }
     }
 }

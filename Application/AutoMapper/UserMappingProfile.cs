@@ -2,7 +2,6 @@
 using AutoMapper;
 using Domain.Entities;
 using Domain.Entities.PlayerEntities;
-using System.Security.Claims;
 
 namespace Application.AutoMapper
 {
@@ -13,7 +12,7 @@ namespace Application.AutoMapper
 
             CreateMap<IEnumerable<System.Security.Claims.Claim>, Player>()
                 .ForMember(p => p.Name, c => c.MapFrom(src => src.FirstOrDefault(x => x.Type == "Name").Value))
-                .ForMember(p => p.UserScore, c => c.MapFrom(src => int.Parse(src.FirstOrDefault(x => x.Type =="UserScore").Value)));
+                .ForMember(p => p.UserScore, c => c.MapFrom(src => int.Parse(src.FirstOrDefault(x => x.Type == "UserScore").Value)));
 
 
             CreateMap<User, Player>();

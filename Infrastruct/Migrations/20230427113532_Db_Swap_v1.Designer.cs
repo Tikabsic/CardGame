@@ -12,30 +12,124 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastruct.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230421150240_Init")]
-    partial class Init
+    [Migration("20230427113532_Db_Swap_v1")]
+    partial class Db_Swap_v1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.4")
+                .HasAnnotation("ProductVersion", "7.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("CardDeck", b =>
+                {
+                    b.Property<int>("CardsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DecksId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CardsId", "DecksId");
+
+                    b.HasIndex("DecksId");
+
+                    b.ToTable("CardDeck");
+                });
+
+            modelBuilder.Entity("CardPlayer", b =>
+                {
+                    b.Property<int>("HandId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PlayersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("HandId", "PlayersId");
+
+                    b.HasIndex("PlayersId");
+
+                    b.ToTable("CardPlayer");
+                });
+
+            modelBuilder.Entity("CardStack", b =>
+                {
+                    b.Property<int>("CardsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StacksId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CardsId", "StacksId");
+
+                    b.HasIndex("StacksId");
+
+                    b.ToTable("CardStack");
+                });
+
             modelBuilder.Entity("Domain.Entities.CardEntities.Card", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<int>("Suit")
                         .HasColumnType("int");
 
-                    b.ToTable("Card");
+                    b.Property<int>("Value")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Cards");
                 });
 
             modelBuilder.Entity("Domain.Entities.CardEntities.Deck", b =>
                 {
-                    b.ToTable("Deck");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("RoomId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomId")
+                        .IsUnique();
+
+                    b.ToTable("Decks");
+                });
+
+            modelBuilder.Entity("Domain.Entities.CardEntities.Stack", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Mode")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RoomId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomId")
+                        .IsUnique();
+
+                    b.ToTable("Stacks");
                 });
 
             modelBuilder.Entity("Domain.Entities.Message", b =>
@@ -110,10 +204,16 @@ namespace Infrastruct.Migrations
                     b.Property<string>("RoomId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("DeckId")
+                        .HasColumnType("int");
+
                     b.Property<int>("NumberOfRounds")
                         .HasColumnType("int");
 
                     b.Property<int>("RoundsPlayed")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StackId")
                         .HasColumnType("int");
 
                     b.HasKey("RoomId");
@@ -150,6 +250,73 @@ namespace Infrastruct.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("CardDeck", b =>
+                {
+                    b.HasOne("Domain.Entities.CardEntities.Card", null)
+                        .WithMany()
+                        .HasForeignKey("CardsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.CardEntities.Deck", null)
+                        .WithMany()
+                        .HasForeignKey("DecksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CardPlayer", b =>
+                {
+                    b.HasOne("Domain.Entities.CardEntities.Card", null)
+                        .WithMany()
+                        .HasForeignKey("HandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.PlayerEntities.Player", null)
+                        .WithMany()
+                        .HasForeignKey("PlayersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CardStack", b =>
+                {
+                    b.HasOne("Domain.Entities.CardEntities.Card", null)
+                        .WithMany()
+                        .HasForeignKey("CardsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.CardEntities.Stack", null)
+                        .WithMany()
+                        .HasForeignKey("StacksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.CardEntities.Deck", b =>
+                {
+                    b.HasOne("Domain.Entities.RoomEntities.Room", "Room")
+                        .WithOne("Deck")
+                        .HasForeignKey("Domain.Entities.CardEntities.Deck", "RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("Domain.Entities.CardEntities.Stack", b =>
+                {
+                    b.HasOne("Domain.Entities.RoomEntities.Room", "Room")
+                        .WithOne("Stack")
+                        .HasForeignKey("Domain.Entities.CardEntities.Stack", "RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("Domain.Entities.Message", b =>
@@ -190,7 +357,13 @@ namespace Infrastruct.Migrations
                 {
                     b.Navigation("Chat");
 
+                    b.Navigation("Deck")
+                        .IsRequired();
+
                     b.Navigation("Players");
+
+                    b.Navigation("Stack")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

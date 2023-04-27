@@ -1,6 +1,5 @@
 ﻿
 using Domain.Entities.RoomEntities;
-using System.Threading.Tasks;
 
 namespace Application.Interfaces.InfrastructureRepositories
 {

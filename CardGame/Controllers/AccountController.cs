@@ -1,9 +1,6 @@
 ﻿using Application.DTO;
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace CardGame.Controllers
 {

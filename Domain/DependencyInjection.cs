@@ -1,5 +1,5 @@
-﻿using Domain.Interfaces;
-using Domain.EntityServices;
+﻿using Domain.EntityServices;
+using Domain.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Domain

@@ -1,10 +1,10 @@
-﻿using Domain.Entities;
+﻿using Application.Interfaces.InfrastructureRepositories;
+using Domain.Entities;
 using Infrastruct.Persistence;
-using Application.Interfaces.InfrastructureRepositories;
 
 namespace Infrastruct.Repositories
 {
-    public class AccountRepository : IAccountRepository
+    internal class AccountRepository : IAccountRepository
     {
         private readonly AppDbContext _dbContext;
 

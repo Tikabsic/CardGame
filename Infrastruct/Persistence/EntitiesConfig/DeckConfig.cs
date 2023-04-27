@@ -1,11 +1,6 @@
 ﻿using Domain.Entities.CardEntities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastruct.Persistence.EntitiesConfig
 {
@@ -13,7 +8,9 @@ namespace Infrastruct.Persistence.EntitiesConfig
     {
         public void Configure(EntityTypeBuilder<Deck> builder)
         {
-            builder.HasNoKey();
+            builder.HasOne(d => d.Room)
+                .WithOne(r => r.Deck)
+                .HasForeignKey<Deck>(d => d.RoomId);
         }
     }
 }

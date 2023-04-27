@@ -1,9 +1,10 @@
-using Infrastruct;
 using Application;
-using Application.Middleware;
-using FluentValidation.AspNetCore;
-using Domain;
 using Application.Hubs;
+using Application.Middleware;
+using Domain;
+using FluentValidation.AspNetCore;
+using Infrastruct;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,11 @@ builder.Services.AddCors(options =>
         .WithOrigins("http://127.0.0.1:5500")
     );
 });
+
+JsonSerializerSettings settings = new JsonSerializerSettings
+{
+    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+};
 
 //Dependency injection configuration
 builder.Services

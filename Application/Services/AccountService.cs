@@ -6,16 +6,16 @@ using Application.Exceptions;
 using Application.Interfaces;
 using Application.Interfaces.InfrastructureRepositories;
 using Application.Interfaces.Services;
+using AutoMapper;
 using Domain.Entities;
+using Domain.Entities.PlayerEntities;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Http;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Domain.Entities.PlayerEntities;
-using AutoMapper;
 
 
 namespace Application.Services
@@ -45,7 +45,6 @@ namespace Application.Services
             _roomRepository = roomRepository;
         }
 
-
         public async Task<bool> isPlayerOnline(LoginUserDTO dto)
         {
             var userName = dto.Name;
@@ -53,8 +52,8 @@ namespace Application.Services
             var rooms = await _roomRepository.GetRoomsAsync();
 
             var isPlayerInGame = rooms.Any(r => r.Players.Exists(x => x.Name == userName));
-
-            if (isPlayerInGame)
+            var isPlayerOnline = players.Any(p => p.Name == userName);
+            if (isPlayerInGame || isPlayerOnline)
             {
                 throw new BadRequestException("Player already online.");
             }
@@ -71,7 +70,6 @@ namespace Application.Services
 
                 var player = new Player()
                 {
-                    Id = int.Parse(claims.FirstOrDefault(x => x.Type == "Id")?.Value),
                     Name = claims.FirstOrDefault(x => x.Type == "Name")?.Value,
                     UserScore = int.Parse(claims.FirstOrDefault(x => x.Type == "UserScore")?.Value)
                 };
@@ -147,6 +145,6 @@ namespace Application.Services
 
             return handler.WriteToken(token).ToString();
         }
-       
+
     }
 }

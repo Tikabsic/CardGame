@@ -1,11 +1,9 @@
-﻿using Domain.Enums;
-using Microsoft.AspNetCore.SignalR;
-using Domain.Entities.RoomEntities;
-using Application.Interfaces.Services;
-using Domain.Interfaces;
-using Application.Exceptions;
-using Domain.Entities;
+﻿using Application.Exceptions;
 using Application.Interfaces.InfrastructureRepositories;
+using Application.Interfaces.Services;
+using Domain.Entities.RoomEntities;
+using Domain.Enums;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Application.Hubs
 {
@@ -14,14 +12,16 @@ namespace Application.Hubs
         private readonly IRoomRepository _roomRepository;
         private readonly IAccountService _accountService;
         private readonly IPlayerRepository _playerRepository;
+        private readonly IRoomService _roomService;
 
         public Room GameRoom { get; set; }
 
-        public GameRoomHub(IRoomRepository roomRepository, IAccountService accountService, IPlayerRepository playerRepository)
+        public GameRoomHub(IRoomRepository roomRepository, IAccountService accountService, IPlayerRepository playerRepository, IRoomService roomService)
         {
             _roomRepository = roomRepository;
             _accountService = accountService;
             _playerRepository = playerRepository;
+            _roomService = roomService;
         }
 
 
@@ -36,47 +36,26 @@ namespace Application.Hubs
             return request;
         }
 
-        public override async Task OnConnectedAsync()
-        {
-            var player = await _accountService.GetPlayer();
-
-            player.ConnectionId = Context.ConnectionId;
-
-            await _playerRepository.UpdatePlayerAsync(player);
-
-            var rooms = await _roomRepository.GetRoomsAsync();
-
-            var room = rooms.FirstOrDefault(r => r.Players.Exists(p => p.Name == player.Name));
-
-            await Groups.AddToGroupAsync(room.RoomId, player.ConnectionId);
-
-            await RoomUpdate(room.RoomId);
-
-            await Clients.All.SendAsync("UpdatePlayersCount", await _playerRepository.ShowPlayersCount());
-
-            await base.OnConnectedAsync();
-        }
-
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            var players = await _playerRepository.GetPlayersAsync();
             var playerId = Context.ConnectionId;
-            var player = players.First(p => p.ConnectionId == playerId);
 
-            var roomsList = await _roomRepository.GetRoomsAsync();
+            var playersList = await _playerRepository.GetPlayersAsync();
 
-            var isPlayerInGame = roomsList.Any(r => r.Players.Exists(x => x.Name == player.Name));
+            var player = playersList.FirstOrDefault(p => p.ConnectionId == playerId);
 
-            if (isPlayerInGame)
+            var room = await _roomRepository.GetRoomAsync(player.GameRoomId);
+
+            room.Players.Remove(player);
+
+            await _playerRepository.RemovePlayerAsync(player);
+
+            await _roomRepository.UpdateRoomAsync(room);
+
+            if (room.Players.Count() < 1)
             {
-                var rooms = await _roomRepository.GetRoomsAsync();
-                var room = rooms.First(r => r.Players.Exists(p => p.Name == player.Name));
                 await _roomRepository.RemoveRoomAsync(room);
             }
-
-           await _playerRepository.RemovePlayerAsync(player);
-
-            await Clients.All.SendAsync("UpdatePlayersCount", await _playerRepository.ShowPlayersCount());
 
             await base.OnDisconnectedAsync(exception);
         }
@@ -86,7 +65,7 @@ namespace Application.Hubs
             var player = await _accountService.GetPlayer();
 
             var gameRooms = await _roomRepository.GetRoomsAsync();
-            var gameRoom  = gameRooms.First(r => r.Players.Contains(player));
+            var gameRoom = gameRooms.First(r => r.Players.Contains(player));
 
             if (gameRoom is null)
             {
@@ -105,6 +84,29 @@ namespace Application.Hubs
             await RoomUpdate(gameRoom.RoomId);
 
             return gameRoom.NumberOfRounds;
+        }
+
+        public async Task<Room> JoinRoomById(string roomId)
+        {
+            var room = await _roomRepository.GetRoomAsync(roomId);
+            var player = await _accountService.GetPlayer();
+            player.ConnectionId = Context.ConnectionId;
+
+            room.Players.Add(player);
+
+            player.GameRoom = room;
+            player.GameRoomId = roomId;
+
+            await _playerRepository.AddPlayerAsync(player);
+            await _roomService.SetGameAdminAsync(roomId);
+            await _roomRepository.UpdateRoomAsync(room);
+
+            await Clients.All.SendAsync("UpdatePlayersCount", await _playerRepository.ShowPlayersCount());
+
+            await Groups.AddToGroupAsync(roomId, player.ConnectionId);
+            await Clients.Groups(roomId).SendAsync("PlayerJoined", room);
+
+            return room;
         }
 
     }

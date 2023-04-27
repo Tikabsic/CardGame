@@ -1,11 +1,7 @@
 ﻿using Domain.Entities.CardEntities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Infrastruct.Persistence.EntitiesConfig
 {
@@ -13,7 +9,12 @@ namespace Infrastruct.Persistence.EntitiesConfig
     {
         public void Configure(EntityTypeBuilder<Card> builder)
         {
-            builder.HasNoKey();
+
+            builder.HasMany(c => c.Decks)
+                .WithMany(d => d.Cards);
+
+            builder.HasMany(c => c.Stacks)
+                .WithMany(s => s.Cards);
         }
     }
 }

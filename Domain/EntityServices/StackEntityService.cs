@@ -3,10 +3,9 @@ using Domain.Enums;
 using Domain.Interfaces;
 
 namespace Domain.EntityServices
-{ 
-    public class StackEntityService : IStackEntityService
+{
+    internal class StackEntityService : IStackEntityService
     {
-
         public void stackDrawingMode(Stack stack)
         {
             if (stack.Cards != null && stack.Cards.Any())

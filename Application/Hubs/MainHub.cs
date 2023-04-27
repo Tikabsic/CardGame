@@ -1,6 +1,5 @@
 ﻿using Application.Interfaces.InfrastructureRepositories;
 using Application.Interfaces.Services;
-using Domain.Entities.RoomEntities;
 using Microsoft.AspNetCore.SignalR;
 
 
@@ -10,23 +9,24 @@ namespace Application.Hubs
     {
         private readonly IAccountService _accountService;
         private readonly IPlayerRepository _playerRepository;
-        public MainHub(IAccountService accountService, IPlayerRepository playerRepository)
+        private readonly IRoomRepository _roomRepository;
+        public MainHub(IAccountService accountService, IPlayerRepository playerRepository, IRoomRepository roomRepository)
         {
             _accountService = accountService;
             _playerRepository = playerRepository;
+            _roomRepository = roomRepository;
         }
 
         public override async Task OnConnectedAsync()
         {
             var player = await _accountService.GetPlayer();
-            var players = await _playerRepository.GetPlayersAsync();
             player.ConnectionId = Context.ConnectionId;
+            var players = await _playerRepository.GetPlayersAsync();
 
-            var existingPlayer = players.FirstOrDefault(p => p.Id == player.Id);
-            if (existingPlayer != null)
+            var existingPlayer = players.Any(p => p.Name == player.Name);
+            if (existingPlayer)
             {
-                existingPlayer.ConnectionId = player.ConnectionId;
-                await _playerRepository.UpdatePlayerAsync(existingPlayer);
+                await _playerRepository.UpdatePlayerAsync(player);
             }
             else
             {

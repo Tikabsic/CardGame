@@ -1,16 +1,12 @@
-﻿using Application.Exceptions;
-using Application.Hubs;
+﻿using Application.DTO;
+using Application.Exceptions;
 using Application.Interfaces.Services;
-using Domain.Entities;
 using Domain.Entities.PlayerEntities;
 using Domain.Entities.RoomEntities;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace CardGame.Controllers
-{        
+{
 
     [Route("api/[controller]")]
     [ApiController]
@@ -40,9 +36,8 @@ namespace CardGame.Controllers
         [HttpPost("CreateRoom")]
         public async Task<Room> CreateGameRoom()
         {
-            var player = await _accountService.GetPlayer();
 
-            var gameRoom = await _roomService.CreateRoom(player);
+            var gameRoom = await _roomService.CreateRoom();
 
             if (gameRoom is null)
             {
@@ -52,5 +47,17 @@ namespace CardGame.Controllers
             return gameRoom;
         }
 
+        [HttpGet("GetRoomInfo")]
+        public async Task<ActionResult> GetRoomInfo([FromBody] RoomRequestDTO request)
+        {
+            var room = await _roomService.GetRoomInfo(request.RoomId);
+
+            if (room == null)
+            {
+                return BadRequest("Invalid operation");
+            }
+
+            return Ok(room);
+        }
     }
 }

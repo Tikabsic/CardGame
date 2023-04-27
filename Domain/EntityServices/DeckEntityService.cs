@@ -1,25 +1,10 @@
 ﻿using Domain.Entities.CardEntities;
-using Domain.Enums;
 using Domain.Interfaces;
 
 namespace Domain.EntityServices
 {
-    public class DeckEntityService : IDeckEntityService
+    internal class DeckEntityService : IDeckEntityService
     {
-        public void GenerateDeck(Deck deck)
-        {
-            var cards = new List<Card>();
-
-            for (int i = (int)CardValue.Nine; i <= (int)CardValue.Ace; i++)
-            {
-                foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
-                {
-                   cards.Add(new Card { Value = (CardValue)i, Suit = suit });
-                }
-            }
-
-            deck.Cards = cards;
-        }
 
         public void ShuffleDeck(Deck deck)
         {

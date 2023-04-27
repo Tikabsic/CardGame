@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Application
 {
@@ -34,17 +35,13 @@ namespace Application
 
             services.AddSingleton(authenticationSettings);
 
-            services.AddSignalR(options =>
+            services.AddSignalR().AddJsonProtocol(options =>
             {
-                options.KeepAliveInterval = TimeSpan.FromSeconds(5);
+                options.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
             });
 
             //Tools
             services.AddAutoMapper(Assembly.GetAssembly(typeof(UserMappingProfile)));
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            };
 
             services.AddAuthentication(options =>
             {

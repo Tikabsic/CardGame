@@ -1,5 +1,4 @@
-﻿using Application.DTO;
-using Application.Interfaces.InfrastructureRepositories;
+﻿using Application.Interfaces.InfrastructureRepositories;
 using Domain.Entities;
 using Infrastruct.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastruct.Repositories
 {
-    public class UserRepository : IUserRepository
+    internal class UserRepository : IUserRepository
     {
         private readonly AppDbContext _dbContext;
 
