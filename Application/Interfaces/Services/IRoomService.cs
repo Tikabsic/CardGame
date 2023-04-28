@@ -9,5 +9,6 @@ namespace Application.Interfaces.Services
         Task SetGameAdminAsync(string roomId);
 
         Task<Room> GetRoomInfo(string roomId);
+        Task<Room> JoinRoomByIdAsync(string roomId);
     }
 }

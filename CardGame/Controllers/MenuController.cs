@@ -3,11 +3,12 @@ using Application.Exceptions;
 using Application.Interfaces.Services;
 using Domain.Entities.PlayerEntities;
 using Domain.Entities.RoomEntities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CardGame.Controllers
 {
-
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MenuController : ControllerBase
@@ -58,6 +59,18 @@ namespace CardGame.Controllers
             }
 
             return Ok(room);
+        }
+        [HttpPost("JoinRoomById")]
+        public async Task<ActionResult> JoinRoomById([FromBody] RoomIdRequest requestId)
+        {
+            var roomRequest = await _roomService.JoinRoomByIdAsync(requestId.RoomId);
+
+            if (roomRequest == null)
+            {
+                return BadRequest($"Room {requestId.RoomId} not exist.");
+            }
+
+            return Ok(roomRequest);
         }
     }
 }

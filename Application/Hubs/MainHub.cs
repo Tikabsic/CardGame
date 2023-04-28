@@ -33,9 +33,7 @@ namespace Application.Hubs
                 await _playerRepository.AddPlayerAsync(player);
             }
 
-            var playersOnline = await _playerRepository.ShowPlayersCount();
-
-            await Clients.All.SendAsync("UpdatePlayersCount", playersOnline);
+            await Clients.All.SendAsync("UpdatePlayersCount", await _playerRepository.ShowPlayersCount());
 
             await base.OnConnectedAsync();
         }
@@ -50,9 +48,7 @@ namespace Application.Hubs
 
             await _playerRepository.RemovePlayerAsync(player);
 
-            var playersOnline = await _playerRepository.ShowPlayersCount();
-
-            await Clients.All.SendAsync("UpdatePlayersCount", playersOnline);
+            await Clients.All.SendAsync("UpdatePlayersCount", await _playerRepository.ShowPlayersCount());
 
             await base.OnDisconnectedAsync(exception);
         }

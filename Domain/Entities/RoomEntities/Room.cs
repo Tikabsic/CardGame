@@ -12,7 +12,6 @@ namespace Domain.Entities.RoomEntities
         public List<Message> Chat { get; set; } = new List<Message>();
         public Deck Deck { get; set; } = new Deck();
         public Stack Stack { get; set; } = new Stack();
-        public Numbers NumberOfRounds { get; set; }
         public int RoundsPlayed { get; set; } = 0;
     }
 }

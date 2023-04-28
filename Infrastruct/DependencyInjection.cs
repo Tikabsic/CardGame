@@ -45,6 +45,7 @@ namespace Infrastruct
             services.AddScoped<IDeckRepository, DeckRepository>();
             services.AddScoped<ICardsRepository, CardsRepository>();
             services.AddScoped<IStackRepository, StackRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
 
             return services;
         }

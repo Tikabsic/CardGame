@@ -50,7 +50,7 @@ namespace Infrastruct.Repositories
 
         public async Task<Room> GetRoomAsync(string roomId)
         {
-            var room = await _dbContext.Rooms.Include(r => r.Deck).FirstAsync(r => r.RoomId == roomId);
+            var room = await _dbContext.Rooms.Include(r => r.Players).Include(r => r.Deck).ThenInclude(d => d.Cards).FirstAsync(r => r.RoomId == roomId);
             return room;
         }
 
