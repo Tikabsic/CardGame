@@ -4,6 +4,7 @@ using Infrastruct.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastruct.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230429140352_Minor_Db_Changes_v6")]
+    partial class Minor_Db_Changes_v6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -176,23 +179,14 @@ namespace Infrastruct.Migrations
                     b.Property<string>("GameRoomId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<bool>("IsCardDrewFromDeck")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsCardThrownToStack")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsCardsDrewFromStack")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsPlayerRound")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StatesId")
                         .HasColumnType("int");
 
                     b.Property<int>("UserScore")
@@ -205,19 +199,41 @@ namespace Infrastruct.Migrations
                     b.ToTable("Players");
                 });
 
+            modelBuilder.Entity("Domain.Entities.PlayerEntities.PlayerStates", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsCardDrewFromDeck")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsCardThrownToStack")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsCardsDrewFromStack")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPlayerRound")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId")
+                        .IsUnique();
+
+                    b.ToTable("PlayerStates");
+                });
+
             modelBuilder.Entity("Domain.Entities.RoomEntities.Room", b =>
                 {
                     b.Property<string>("RoomId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("CurrentPlayerRoundIndex")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsGameStarted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("MaxPlayerRoundIndex")
-                        .HasColumnType("int");
 
                     b.Property<int>("RoundsPlayed")
                         .HasColumnType("int");
@@ -354,9 +370,23 @@ namespace Infrastruct.Migrations
                     b.Navigation("GameRoom");
                 });
 
+            modelBuilder.Entity("Domain.Entities.PlayerEntities.PlayerStates", b =>
+                {
+                    b.HasOne("Domain.Entities.PlayerEntities.Player", "Player")
+                        .WithOne("States")
+                        .HasForeignKey("Domain.Entities.PlayerEntities.PlayerStates", "PlayerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Player");
+                });
+
             modelBuilder.Entity("Domain.Entities.PlayerEntities.Player", b =>
                 {
                     b.Navigation("Messages");
+
+                    b.Navigation("States")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Entities.RoomEntities.Room", b =>

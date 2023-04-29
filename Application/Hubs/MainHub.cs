@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces.InfrastructureRepositories;
 using Application.Interfaces.Services;
+using Domain.Enums;
 using Microsoft.AspNetCore.SignalR;
 
 
@@ -26,10 +27,12 @@ namespace Application.Hubs
             var existingPlayer = players.Any(p => p.Name == player.Name);
             if (existingPlayer)
             {
+                player.Role = Roles.Player;
                 await _playerRepository.UpdatePlayerAsync(player);
             }
             else
             {
+                player.Role = Roles.Player;
                 await _playerRepository.AddPlayerAsync(player);
             }
 

@@ -19,6 +19,7 @@ namespace Application.Hubs
         private readonly IRoomService _roomService;
         private readonly IMapper _mapper;
         private readonly IMessageRepository _messageRepository;
+        private readonly IUserRepository _userRepository;
 
         public Room GameRoom { get; set; }
 
@@ -27,7 +28,8 @@ namespace Application.Hubs
                  IPlayerRepository playerRepository,
                  IRoomService roomService,
                  IMapper mapper,
-                 IMessageRepository messageRepository)
+                 IMessageRepository messageRepository,
+                 IUserRepository userRepository)
         {
             _roomRepository = roomRepository;
             _accountService = accountService;
@@ -35,9 +37,24 @@ namespace Application.Hubs
             _roomService = roomService;
             _mapper = mapper;
             _messageRepository = messageRepository;
+            _userRepository = userRepository;
         }
 
+        public async Task<bool> FinishGame(string roomId)
+        {
+            var room = await _roomRepository.GetRoomAsync(roomId);
+            var playersInGame = room.Players.ToList();
 
+            var isDeckContainCards = room.Deck.Cards.Any();
+            var isAnyPlayerHandsEmpty = playersInGame.Any(p => p.Hand.Count == 0);
+
+            if (isDeckContainCards || !isAnyPlayerHandsEmpty)
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
@@ -53,21 +70,20 @@ namespace Application.Hubs
 
             await Groups.RemoveFromGroupAsync(room.RoomId, playerId);
 
-            await Clients.Groups(room.RoomId).SendAsync("PlayerLeft", player.Name);
-
             await _playerRepository.RemovePlayerAsync(player);
 
             await _roomService.SetGameAdminAsync(room.RoomId);
 
             await _roomRepository.UpdateRoomAsync(room);
 
-            await Clients.Groups(room.RoomId).SendAsync("RoomUpdate", room);
-
-            if (room.Players.Count() < 1)
+            if (room.Players.Count() == 0)
             {
                 await _roomRepository.RemoveRoomAsync(room);
             }
-            await Clients.All.SendAsync("UpdatePlayersCount", await _playerRepository.ShowPlayersCount());
+
+            await Clients.Groups(room.RoomId).SendAsync("PlayerLeft", player.Name);
+
+            await Clients.Groups(room.RoomId).SendAsync("RoomUpdate", room);
 
             await base.OnDisconnectedAsync(exception);
         }
@@ -85,9 +101,9 @@ namespace Application.Hubs
 
             await _playerRepository.AddPlayerAsync(player);
             await _roomService.SetGameAdminAsync(roomId);
+            await _playerRepository.UpdatePlayerAsync(player);
             await _roomRepository.UpdateRoomAsync(room);
 
-            await Clients.All.SendAsync("UpdatePlayersCount", await _playerRepository.ShowPlayersCount());
             await Clients.Groups(roomId).SendAsync("RoomUpdate", room);
 
             await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
@@ -95,6 +111,111 @@ namespace Application.Hubs
             await Clients.Groups(roomId).SendAsync("PlayerJoined", player.Name);
 
             return room;
+        }
+
+        public async Task StartGame(string roomId)
+        {
+            var room = await _roomRepository.GetRoomAsync(roomId);
+            if (room.IsGameStarted)
+            {
+                string alert = "Game already started!";
+                await Clients.Caller.SendAsync("GameStartedAlert", alert);
+            }
+
+            room.IsGameStarted = true;
+            room.MaxPlayerRoundIndex = room.Players.Count;
+            room.CurrentPlayerRoundIndex = 1;
+            await _roomRepository.UpdateRoomAsync(room);
+
+            var currentPlayer = room.Players[room.CurrentPlayerRoundIndex - 1];
+            currentPlayer.IsPlayerRound = true;
+
+            await _playerRepository.UpdatePlayerAsync(currentPlayer);
+
+            string message = $"Game started!";
+
+            await Clients.Group(roomId).SendAsync("RoomUpdate", room);
+            await Clients.Group(roomId).SendAsync("GameStarted", message);
+
+            await PlayerTurn(roomId);
+        }
+
+        public async Task EndTurn(string roomId)
+        {
+            var room = await _roomRepository.GetRoomAsync(roomId);
+            if (!room.IsGameStarted)
+            {
+                string gameNotStartedAlert = "Game not started yet.";
+                await Clients.Caller.SendAsync("GameNotStarted", gameNotStartedAlert);
+            }
+
+            var currentPlayer = room.Players[room.CurrentPlayerRoundIndex - 1];
+            if (!currentPlayer.IsPlayerRound)
+            {
+                string alert = "it's not your turn.";
+                await Clients.Caller.SendAsync(alert);
+            }
+
+            if (room.CurrentPlayerRoundIndex == room.MaxPlayerRoundIndex)
+            {
+                room.CurrentPlayerRoundIndex = 1;
+                currentPlayer.IsPlayerRound = false;
+                await _roomRepository.UpdateRoomAsync(room);
+                await _playerRepository.UpdatePlayerAsync(currentPlayer);
+
+                var firstPlayer = room.Players[room.CurrentPlayerRoundIndex - 1];
+                firstPlayer.IsPlayerRound = true;
+                await _playerRepository.UpdatePlayerAsync(firstPlayer);
+
+
+                await PlayerTurn(roomId);
+            }
+
+            if (room.Deck.Cards.Any())
+            {
+                if (!currentPlayer.IsCardDrewFromDeck)
+                {
+                    var needToDrawAlert = "You must draw a card before finishing the turn!";
+                    await Clients.Caller.SendAsync("MustDrawAlert", needToDrawAlert);
+                }
+            }
+
+            if (await FinishGame(roomId))
+            {
+                var winner = room.Players.First(p => p.Hand.Count == 0);
+                var user = await _userRepository.GetUserByName(winner.Name);
+                winner.UserScore++;
+                user.UserScore += winner.UserScore;
+
+                var gameFinishMessage = $"Game won by {winner.Name}!";
+                await Clients.Group(roomId).SendAsync("GameFinish", gameFinishMessage);
+            }
+
+            room.CurrentPlayerRoundIndex++;
+            currentPlayer.IsPlayerRound = false;
+            await _roomRepository.UpdateRoomAsync(room);
+            await _playerRepository.UpdatePlayerAsync(currentPlayer);
+
+            var nextPlayer = room.Players[room.CurrentPlayerRoundIndex - 1];
+            nextPlayer.IsPlayerRound = true;
+            await _playerRepository.UpdatePlayerAsync(nextPlayer);
+
+            await PlayerTurn(roomId);
+        }
+
+        public async Task PlayerTurn(string roomId)
+        {
+
+            var room = await _roomRepository.GetRoomAsync(roomId);
+            var currentPlayer = room.Players[room.CurrentPlayerRoundIndex - 1];
+            if (!currentPlayer.IsPlayerRound)
+            {
+                string alert = "Something went wrong, it's not your turn.";
+                await Clients.Caller.SendAsync(alert);
+            }
+
+            string message = $"It's {currentPlayer.Name} turn!.";
+            await Clients.Group(roomId).SendAsync("NextTurn", message);
         }
 
         public async Task SendMessage(string playerMessage, string authorName, string roomId)

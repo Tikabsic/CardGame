@@ -16,7 +16,7 @@ namespace Infrastruct.Persistence.EntitiesConfig
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Property(c => c.PlayerMessage)
-                .HasMaxLength(100);
+                .HasMaxLength(250);
         }
     }
 }

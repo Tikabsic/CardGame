@@ -4,6 +4,7 @@ using Infrastruct.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastruct.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230429153114_Minor_Db_Changes_v10")]
+    partial class Minor_Db_Changes_v10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -210,14 +213,8 @@ namespace Infrastruct.Migrations
                     b.Property<string>("RoomId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("CurrentPlayerRoundIndex")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsGameStarted")
                         .HasColumnType("bit");
-
-                    b.Property<int>("MaxPlayerRoundIndex")
-                        .HasColumnType("int");
 
                     b.Property<int>("RoundsPlayed")
                         .HasColumnType("int");

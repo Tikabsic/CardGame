@@ -362,3 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /CardGame/appsettings.json
+/Infrastruct/Migrations/20230429134835_Minor_Db_Changes_v3.cs

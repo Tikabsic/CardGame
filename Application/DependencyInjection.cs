@@ -2,6 +2,7 @@
 using Application.AutoMapper;
 using Application.DTO;
 using Application.DTO.Validators;
+using Application.Hubs;
 using Application.Interfaces.Services;
 using Application.Middleware;
 using Application.Services;
@@ -35,7 +36,10 @@ namespace Application
 
             services.AddSingleton(authenticationSettings);
 
-            services.AddSignalR().AddJsonProtocol(options =>
+            services.AddSignalR().AddHubOptions<GameRoomHub>(options =>
+            {
+                options.ClientTimeoutInterval = TimeSpan.FromSeconds(3600);
+            }).AddJsonProtocol(options =>
             {
                 options.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
             });

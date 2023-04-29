@@ -4,6 +4,7 @@ using Infrastruct.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastruct.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230429141127_Minor_Db_Changes_v8")]
+    partial class Minor_Db_Changes_v8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -176,6 +179,38 @@ namespace Infrastruct.Migrations
                     b.Property<string>("GameRoomId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("StatesId")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserScore")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameRoomId");
+
+                    b.HasIndex("StatesId")
+                        .IsUnique();
+
+                    b.ToTable("Players");
+                });
+
+            modelBuilder.Entity("Domain.Entities.PlayerEntities.PlayerStates", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<bool>("IsCardDrewFromDeck")
                         .HasColumnType("bit");
 
@@ -188,36 +223,15 @@ namespace Infrastruct.Migrations
                     b.Property<bool>("IsPlayerRound")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserScore")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("GameRoomId");
-
-                    b.ToTable("Players");
+                    b.ToTable("PlayerStates");
                 });
 
             modelBuilder.Entity("Domain.Entities.RoomEntities.Room", b =>
                 {
                     b.Property<string>("RoomId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("CurrentPlayerRoundIndex")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsGameStarted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("MaxPlayerRoundIndex")
-                        .HasColumnType("int");
 
                     b.Property<int>("RoundsPlayed")
                         .HasColumnType("int");
@@ -351,12 +365,26 @@ namespace Infrastruct.Migrations
                         .HasForeignKey("GameRoomId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("Domain.Entities.PlayerEntities.PlayerStates", "States")
+                        .WithOne("Player")
+                        .HasForeignKey("Domain.Entities.PlayerEntities.Player", "StatesId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
                     b.Navigation("GameRoom");
+
+                    b.Navigation("States");
                 });
 
             modelBuilder.Entity("Domain.Entities.PlayerEntities.Player", b =>
                 {
                     b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("Domain.Entities.PlayerEntities.PlayerStates", b =>
+                {
+                    b.Navigation("Player")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Entities.RoomEntities.Room", b =>

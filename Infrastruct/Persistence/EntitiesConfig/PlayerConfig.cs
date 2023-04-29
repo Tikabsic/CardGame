@@ -13,6 +13,7 @@ namespace Infrastruct.Persistence.EntitiesConfig
 
             builder.HasMany(p => p.Hand)
                 .WithMany(p => p.Players);
+
         }
     }
 }

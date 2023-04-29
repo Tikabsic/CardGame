@@ -42,7 +42,6 @@ namespace Application.Services
             await _roomRepository.SaveRoomAsync(room);
 
             await _deckRepository.GenerateDeckAsync(room.Deck.Id);
-            _deckEntityService.ShuffleDeck(room.Deck);
 
             return room;
         }
