@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTO
 {
-    internal class CardDTO
+    public class CardDTO
     {
         public int Id { get; set; }
         public CardValue Value { get; set; }

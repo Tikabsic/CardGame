@@ -29,22 +29,21 @@ namespace Application.AutoMapper
 
             CreateMap<Message, MessageDTO>();
 
-            CreateMap<Card, CardDTO>();
+            CreateMap<Card, CardDTO>()
+            .ForMember(cd => cd.Suit, c => c.MapFrom(c => c.Suit))
+            .ForMember(cd => cd.Value, c => c.MapFrom(c => c.Value));
 
-            CreateMap<DeckCard, Card>()
+            CreateMap<DeckCard, CardDTO>()
                 .ForMember(c => c.Suit, dc => dc.MapFrom(src => src.Card.Suit))
-                .ForMember(c => c.Value, dc => dc.MapFrom(src => src.Card.Value))
-                .ForMember(c => c.Id, dc => dc.MapFrom(src => src.Card.Id));
+                .ForMember(c => c.Value, dc => dc.MapFrom(src => src.Card.Value));
 
-            CreateMap<StackCard, Card>()
+            CreateMap<StackCard, CardDTO>()
                 .ForMember(c => c.Value, sc => sc.MapFrom(src => src.Card.Value))
-                .ForMember(c => c.Value, sc => sc.MapFrom(src => src.Card.Value))
-                .ForMember(c => c.Id, sc => sc.MapFrom(src => src.Card.Id));
+                .ForMember(c => c.Value, sc => sc.MapFrom(src => src.Card.Value));
 
-            CreateMap<PlayerCard, Card>()
+            CreateMap<PlayerCard, CardDTO>()
                 .ForMember(c => c.Value, pc => pc.MapFrom(src => src.Card.Value))
-                .ForMember(c => c.Value, pc => pc.MapFrom(src => src.Card.Value))
-                .ForMember(c => c.Id, pc => pc.MapFrom(src => src.Card.Id));
+                .ForMember(c => c.Value, pc => pc.MapFrom(src => src.Card.Value));
 
             CreateMap<Player, PlayerDTO>()
             .ForMember(pd => pd.Hand, p => p.MapFrom(src => src.Hand));

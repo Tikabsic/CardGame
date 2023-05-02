@@ -6,5 +6,6 @@ namespace Application.Interfaces.InfrastructureRepositories
     {
         Task<User> GetUserByName(string Name);
         Task<bool> IsUserNameTaken(string name);
+        Task UpdateUser(User user);
     }
 }

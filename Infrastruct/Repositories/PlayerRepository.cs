@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces.InfrastructureRepositories;
+using Domain.Entities.CardEntities;
 using Domain.Entities.PlayerEntities;
 using Infrastruct.Persistence;
 using Microsoft.EntityFrameworkCore;

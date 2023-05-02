@@ -21,6 +21,7 @@ namespace Application.Hubs
         private readonly IMapper _mapper;
         private readonly IMessageRepository _messageRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IPlayerService _playerService;
 
         public Room GameRoom { get; set; }
 
@@ -30,7 +31,9 @@ namespace Application.Hubs
                  IRoomService roomService,
                  IMapper mapper,
                  IMessageRepository messageRepository,
-                 IUserRepository userRepository)
+                 IUserRepository userRepository,
+                 IPlayerService playerService)
+    
         {
             _roomRepository = roomRepository;
             _accountService = accountService;
@@ -39,6 +42,7 @@ namespace Application.Hubs
             _mapper = mapper;
             _messageRepository = messageRepository;
             _userRepository = userRepository;
+            _playerService = playerService;
         }
 
         public async Task isPlayerInRoom(string roomId)
@@ -52,6 +56,7 @@ namespace Application.Hubs
             {
                 string wrongRoomAlert = "Wrong roomId!";
                 await Clients.Caller.SendAsync("WrongRoomIdAlert", wrongRoomAlert);
+                return;
             }
         }
 
@@ -74,10 +79,10 @@ namespace Application.Hubs
         public async Task<bool> FinishGame(string roomId)
         {
             var room = await _roomRepository.GetRoomAsync(roomId);
-            var player = await _playerRepository.GetPlayerAsync(Context.ConnectionId);
+            var caller = await _playerRepository.GetPlayerAsync(Context.ConnectionId);
 
             var isDeckContainCards = room.Deck.Cards.Any();
-            var isPlayerHandsEmpty = player.Hand.Any();
+            var isPlayerHandsEmpty = caller.Hand.Any();
 
             if (isDeckContainCards || !isPlayerHandsEmpty)
             {
@@ -232,6 +237,8 @@ namespace Application.Hubs
                 winner.UserScore++;
                 user.UserScore += winner.UserScore;
 
+                await _userRepository.UpdateUser(user);
+
                 var gameFinishMessage = $"Game won by {winner.Name}!";
                 await Clients.Group(roomId).SendAsync("GameFinish", gameFinishMessage);
                 return;
@@ -266,6 +273,46 @@ namespace Application.Hubs
             await Clients.Group(roomId).SendAsync("NextTurn", message);
         }
 
+        public async Task DrawACardFromDeck(string roomId)
+        {
+            await isPlayerInRoom(roomId);
+
+            var room = _roomRepository.GetRoomAsync(roomId);
+
+            var playerDto = await _playerService.DrawACardFromDeck(roomId, Context.ConnectionId);
+            var roomDto = _mapper.Map<RoomDTO>(room);
+
+            await Clients.GroupExcept(roomId, Context.ConnectionId).SendAsync("PlayerDrewCardFromDeck", roomDto);
+            await Clients.Caller.SendAsync("CardDrawed", playerDto);
+        }
+
+        public async Task ThrowACardToStack(string roomId, int cardId)
+        {
+            await isPlayerInRoom(roomId);
+            var caller = await _playerRepository.GetPlayerAsync(Context.ConnectionId);
+            var room = await _roomRepository.GetRoomAsync(roomId);
+
+            var roomDto = _mapper.Map<RoomDTO>(room);
+            var playerDto = _playerService.ThrowACardToStack(roomId, caller.ConnectionId, cardId);
+
+            await Clients.GroupExcept(roomId, caller.ConnectionId).SendAsync("PlayerThrewCardToStack", roomDto);
+            await Clients.Caller.SendAsync("CardThrown", playerDto);
+        }
+
+        public async Task DrawACardFromStack(string roomId)
+        {
+            await isPlayerInRoom(roomId);
+            var caller = await _playerRepository.GetPlayerAsync(Context.ConnectionId);
+            var room = await _roomRepository.GetRoomAsync(roomId);
+
+            var roomDto = _mapper.Map<RoomDTO>(room);
+            var playerDto = _playerService.TakeCardsFromStack(roomId, caller.ConnectionId);
+
+            await Clients.GroupExcept(roomId, caller.ConnectionId).SendAsync("PlayerTookCardsFromStack", roomDto);
+            await Clients.Caller.SendAsync("CardsTaken", playerDto);
+
+        }
+
         public async Task SendMessage(string playerMessage, string authorName, string roomId)
         {
             await isPlayerInRoom(roomId);
@@ -285,9 +332,12 @@ namespace Application.Hubs
 
             if (playerMessage == "deck")
             {
-                var lastCard = room.Deck.Cards;
-                await Clients.Caller.SendAsync("DeckCheck", lastCard);
-            }
+                var cards = room.Deck.Cards.Select(c => c.Card);
+                var roomDTO = new RoomDTO();
+
+                var testData = _mapper.Map<RoomDTO>(room);
+                await Clients.Caller.SendAsync("DeckCheck", testData);
+            };
 
             var message = new Message()
             {

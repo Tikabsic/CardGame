@@ -13,7 +13,7 @@ namespace Infrastruct.Persistence.EntitiesConfig
     {
         public void Configure(EntityTypeBuilder<DeckCard> builder)
         {
-            builder.HasKey(cd => new {cd.CardId, cd.DeckId});
+            builder.HasKey(cd => new { cd.CardId, cd.DeckId });
         }
     }
 }

@@ -2,8 +2,9 @@
 
 namespace Application.DTO
 {
-    internal class PlayerDTO
+    public class PlayerDTO
     {
+        public int ListIndex { get; set; }
         public Roles Role { get; set; }
         public string Name { get; set; }
         public int UserScore { get; set; }

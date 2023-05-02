@@ -29,5 +29,11 @@ namespace Infrastruct.Repositories
             return isUserNameTaken;
         }
 
+        public async Task UpdateUser(User user)
+        {
+            _dbContext.Update(user);
+            await _dbContext.SaveChangesAsync();
+        }
+
     }
 }
