@@ -16,6 +16,9 @@ namespace Infrastruct.Persistence
         public DbSet<Card> Cards { get; set; }
         public DbSet<Deck> Decks { get; set; }
         public DbSet<Stack> Stacks { get; set; }
+        public DbSet<PlayerCard> PlayerCards { get; set; }
+        public DbSet<DeckCard> DeckCards { get; set; }
+        public DbSet<StackCard> StackCards { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {

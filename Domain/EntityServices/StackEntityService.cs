@@ -12,7 +12,7 @@ namespace Domain.EntityServices
             {
                 var firstCard = stack.Cards.ToArray()[0];
 
-                var desiredCard = stack.Cards.First(x => x.Value == CardValue.Nine && x.Suit == CardSuit.Hearts);
+                var desiredCard = stack.Cards.First(x => x.Card.Value == CardValue.Nine && x.Card.Suit == CardSuit.Hearts);
 
                 if (firstCard == desiredCard)
                 {

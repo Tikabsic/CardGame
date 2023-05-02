@@ -47,9 +47,14 @@ namespace Infrastruct.Repositories
 
             foreach (var card in cardArray)
             {
-                deck.Cards.Add(card);
+                deck.Cards.Add(new DeckCard()
+                {
+                    Card = card,
+                    CardId = card.Id,
+                    Deck = deck,
+                    DeckId = deck.Id
+                });
                 await _dbContext.SaveChangesAsync();
-
             }
         }
     }

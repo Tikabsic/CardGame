@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace Infrastruct.Persistence.EntitiesConfig
 {
-    internal class DeckCardConfig : IEntityTypeConfiguration<DeckCard>
+    internal class StackCardCongif : IEntityTypeConfiguration<StackCard>
     {
-        public void Configure(EntityTypeBuilder<DeckCard> builder)
+        public void Configure(EntityTypeBuilder<StackCard> builder)
         {
-            builder.HasKey(cd => new {cd.CardId, cd.DeckId});
+            builder.HasKey(sc => new { sc.StackId, sc.CardId });
         }
     }
 }

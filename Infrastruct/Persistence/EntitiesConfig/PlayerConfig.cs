@@ -14,7 +14,6 @@ namespace Infrastruct.Persistence.EntitiesConfig
             builder.HasMany(p => p.Hand)
                 .WithOne(pc => pc.Player)
                 .HasForeignKey(pc => pc.PlayerId);
-
         }
     }
 }
