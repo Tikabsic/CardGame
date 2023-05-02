@@ -11,6 +11,10 @@ namespace Infrastruct.Persistence.EntitiesConfig
             builder.HasOne(s => s.Room)
                 .WithOne(r => r.Stack)
                 .HasForeignKey<Stack>(s => s.RoomId);
+
+            builder.HasMany(s => s.Cards)
+                .WithOne(sc => sc.Stack)
+                .HasForeignKey(sc => sc.StackId);
         }
     }
 }

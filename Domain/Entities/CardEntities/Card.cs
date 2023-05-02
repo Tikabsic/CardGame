@@ -8,8 +8,8 @@ namespace Domain.Entities.CardEntities
         public int Id { get; set; }
         public CardValue Value { get; set; }
         public CardSuit Suit { get; set; }
-        public List<Deck> Decks { get; set; }
-        public List<Stack> Stacks { get; set; }
-        public List<Player> Players { get; set; }
+        public List<DeckCard> DeckCards { get; set; }
+        public List<StackCard> StackCards { get; set; }
+        public List<PlayerCard> PlayerCards { get; set; }
     }
 }

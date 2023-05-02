@@ -7,7 +7,6 @@ namespace Domain.Entities.CardEntities
         public int Id { get; set; }
         public Room Room { get; set; }
         public string RoomId { get; set; }
-        public List<Card> Cards { get; set; } = new List<Card>();
-
+        public List<DeckCard> Cards { get; set; } = new List<DeckCard>();
     }
 }

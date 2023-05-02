@@ -34,7 +34,7 @@ namespace Infrastruct.Migrations
 
                     b.HasIndex("DecksId");
 
-                    b.ToTable("CardDeck");
+                    b.ToTable("CardDeck", (string)null);
                 });
 
             modelBuilder.Entity("CardPlayer", b =>
@@ -49,7 +49,7 @@ namespace Infrastruct.Migrations
 
                     b.HasIndex("PlayersId");
 
-                    b.ToTable("CardPlayer");
+                    b.ToTable("CardPlayer", (string)null);
                 });
 
             modelBuilder.Entity("CardStack", b =>
@@ -64,7 +64,7 @@ namespace Infrastruct.Migrations
 
                     b.HasIndex("StacksId");
 
-                    b.ToTable("CardStack");
+                    b.ToTable("CardStack", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.CardEntities.Card", b =>
@@ -83,7 +83,7 @@ namespace Infrastruct.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Cards");
+                    b.ToTable("Cards", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.CardEntities.Deck", b =>
@@ -103,7 +103,7 @@ namespace Infrastruct.Migrations
                     b.HasIndex("RoomId")
                         .IsUnique();
 
-                    b.ToTable("Decks");
+                    b.ToTable("Decks", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.CardEntities.Stack", b =>
@@ -126,7 +126,7 @@ namespace Infrastruct.Migrations
                     b.HasIndex("RoomId")
                         .IsUnique();
 
-                    b.ToTable("Stacks");
+                    b.ToTable("Stacks", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Message", b =>
@@ -159,7 +159,7 @@ namespace Infrastruct.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("Messages");
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.PlayerEntities.Player", b =>
@@ -202,7 +202,7 @@ namespace Infrastruct.Migrations
 
                     b.HasIndex("GameRoomId");
 
-                    b.ToTable("Players");
+                    b.ToTable("Players", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.RoomEntities.Room", b =>
@@ -224,7 +224,7 @@ namespace Infrastruct.Migrations
 
                     b.HasKey("RoomId");
 
-                    b.ToTable("Rooms");
+                    b.ToTable("Rooms", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -255,7 +255,7 @@ namespace Infrastruct.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("CardDeck", b =>

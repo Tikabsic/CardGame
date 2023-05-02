@@ -13,14 +13,12 @@ namespace Application.Services
         private readonly IRoomEntityService _roomEntityService;
         private readonly IRoomRepository _roomRepository;
         private readonly IDeckRepository _deckRepository;
-        private readonly IDeckEntityService _deckEntityService;
         private readonly IPlayerRepository _playerRepository;
         private readonly IStackRepository _stackRepository;
         private readonly IAccountService _accountService;
 
         public RoomService(IRoomEntityService service,
             IRoomRepository roomRepository,
-            IDeckEntityService deckEntityService,
             IDeckRepository deckRepository,
             IPlayerRepository playerRepository,
             IStackRepository stackRepository,
@@ -28,7 +26,6 @@ namespace Application.Services
         {
             _roomEntityService = service;
             _roomRepository = roomRepository;
-            _deckEntityService = deckEntityService;
             _deckRepository = deckRepository;
             _playerRepository = playerRepository;
             _stackRepository = stackRepository;
@@ -42,6 +39,7 @@ namespace Application.Services
             await _roomRepository.SaveRoomAsync(room);
 
             await _deckRepository.GenerateDeckAsync(room.Deck.Id);
+            await _roomRepository.UpdateRoomAsync(room);
 
             return room;
         }
@@ -57,17 +55,6 @@ namespace Application.Services
             }
 
             return room;
-        }
-
-        public async Task SetGameAdminAsync(string roomId)
-        {
-            var room = await _roomRepository.GetRoomAsync(roomId);
-            var players = await _playerRepository.GetPlayersAsync();
-            var firstPlayer = players.First();
-
-            firstPlayer.Role = Roles.RoomAdmin;
-
-            await _roomRepository.UpdateRoomAsync(room);
         }
 
         public async Task<Room> GetRoomInfo(string roomId)

@@ -9,12 +9,17 @@ namespace Infrastruct.Persistence.EntitiesConfig
     {
         public void Configure(EntityTypeBuilder<Card> builder)
         {
+            builder.HasMany(c => c.DeckCards)
+                .WithOne(dc => dc.Card)
+                .HasForeignKey(c => c.CardId);
 
-            builder.HasMany(c => c.Decks)
-                .WithMany(d => d.Cards);
+            builder.HasMany(c => c.StackCards)
+                .WithOne(sc => sc.Card)
+                .HasForeignKey(sc => sc.CardId);
 
-            builder.HasMany(c => c.Stacks)
-                .WithMany(s => s.Cards);
+            builder.HasMany(c => c.PlayerCards)
+                .WithOne(pc => pc.Card)
+                .HasForeignKey(pc => pc.CardId);
         }
     }
 }

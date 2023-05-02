@@ -1,7 +1,9 @@
 ﻿using Application.DTO;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Entities.CardEntities;
 using Domain.Entities.PlayerEntities;
+using Domain.Entities.RoomEntities;
 
 namespace Application.AutoMapper
 {
@@ -26,6 +28,13 @@ namespace Application.AutoMapper
             CreateMap<MessageDTO, Message>();
 
             CreateMap<Message, MessageDTO>();
+
+            CreateMap<Card, CardDTO>();
+
+            CreateMap<CardDTO, Card>();
+
+            CreateMap<Room, RoomDTO>()
+                .ForMember(rd => rd.Deck, r => r.MapFrom(r => r.Deck.Cards.Find(c => c.Card)));
         }
     }
 }

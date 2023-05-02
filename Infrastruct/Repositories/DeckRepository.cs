@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces.InfrastructureRepositories;
 using Domain.Entities.CardEntities;
+using Domain.Interfaces;
 using Infrastruct.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,10 +32,24 @@ namespace Infrastruct.Repositories
             var cards = await _dbContext.Cards.ToListAsync();
             var deck = await _dbContext.Decks.FirstAsync(d => d.Id == deckId);
 
-            foreach (var card in cards)
+            Random random = new Random();
+
+            Card[] cardArray = cards.ToArray();
+
+            for (int i = cardArray.Length - 1; i >= 1; i--)
+            {
+                int j = random.Next(i + 1);
+
+                Card temp = cardArray[i];
+                cardArray[i] = cardArray[j];
+                cardArray[j] = temp;
+            }
+
+            foreach (var card in cardArray)
             {
                 deck.Cards.Add(card);
                 await _dbContext.SaveChangesAsync();
+
             }
         }
     }

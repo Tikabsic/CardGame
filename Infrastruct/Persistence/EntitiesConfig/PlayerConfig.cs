@@ -12,7 +12,8 @@ namespace Infrastruct.Persistence.EntitiesConfig
                 .IsRequired(false);
 
             builder.HasMany(p => p.Hand)
-                .WithMany(p => p.Players);
+                .WithOne(pc => pc.Player)
+                .HasForeignKey(pc => pc.PlayerId);
 
         }
     }

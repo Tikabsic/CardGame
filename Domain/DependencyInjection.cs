@@ -11,7 +11,6 @@ namespace Domain
 
             services.AddScoped<IStackEntityService, StackEntityService>();
             services.AddScoped<IRoomEntityService, RoomEntityService>();
-            services.AddScoped<IDeckEntityService, DeckEntityService>();
 
             return services;
         }

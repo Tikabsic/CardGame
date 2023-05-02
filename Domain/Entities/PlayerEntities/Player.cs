@@ -17,7 +17,7 @@ namespace Domain.Entities.PlayerEntities
         public bool IsCardsDrewFromStack { get; set; } = false;
         public Roles Role { get; set; } = Roles.Player;
         public string Name { get; set; }
-        public List<Card> Hand { get; set; } = new List<Card>();
+        public List<PlayerCard> Hand { get; set; } = new List<PlayerCard>();
         public List<Message> Messages { get; set; } = new List<Message>();
         public int UserScore { get; set; }
     }

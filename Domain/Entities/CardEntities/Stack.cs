@@ -8,8 +8,7 @@ namespace Domain.Entities.CardEntities
         public int Id { get; set; }
         public Room Room { get; set; }
         public string RoomId { get; set; }
-        public List<Card> Cards { get; set; } = new List<Card>();
+        public List<StackCard> Cards { get; set; } = new List<StackCard>();
         public StackDrawingMode Mode { get; set; } = StackDrawingMode.All;
-
     }
 }

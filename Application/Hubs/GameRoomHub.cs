@@ -4,6 +4,7 @@ using Application.Interfaces.InfrastructureRepositories;
 using Application.Interfaces.Services;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Entities.CardEntities;
 using Domain.Entities.PlayerEntities;
 using Domain.Entities.RoomEntities;
 using Domain.Enums;
@@ -40,19 +41,48 @@ namespace Application.Hubs
             _userRepository = userRepository;
         }
 
+        public async Task isPlayerInRoom(string roomId)
+        {
+            var room = await _roomRepository.GetRoomAsync(roomId);
+            var player = await _playerRepository.GetPlayerAsync(Context.ConnectionId);
+
+            var isPlayerInRoom = room.Players.Contains(player);
+
+            if (!isPlayerInRoom)
+            {
+                string wrongRoomAlert = "Wrong roomId!";
+                await Clients.Caller.SendAsync("WrongRoomIdAlert", wrongRoomAlert);
+            }
+        }
+
+        public async Task SetGameAdminAsync(string roomId)
+        {
+            var room = await _roomRepository.GetRoomAsync(roomId);
+            var players = await _playerRepository.GetPlayersAsync();
+            var firstPlayer = players.FirstOrDefault();
+
+            if (firstPlayer == null)
+            {
+                return;
+            }
+
+            firstPlayer.Role = Roles.RoomAdmin;
+
+            await _roomRepository.UpdateRoomAsync(room);
+        }
+
         public async Task<bool> FinishGame(string roomId)
         {
             var room = await _roomRepository.GetRoomAsync(roomId);
-            var playersInGame = room.Players.ToList();
+            var player = await _playerRepository.GetPlayerAsync(Context.ConnectionId);
 
             var isDeckContainCards = room.Deck.Cards.Any();
-            var isAnyPlayerHandsEmpty = playersInGame.Any(p => p.Hand.Count == 0);
+            var isPlayerHandsEmpty = player.Hand.Any();
 
-            if (isDeckContainCards || !isAnyPlayerHandsEmpty)
+            if (isDeckContainCards || !isPlayerHandsEmpty)
             {
                 return false;
             }
-
             return true;
         }
 
@@ -72,17 +102,18 @@ namespace Application.Hubs
 
             await _playerRepository.RemovePlayerAsync(player);
 
-            await _roomService.SetGameAdminAsync(room.RoomId);
+            await SetGameAdminAsync(room.RoomId);
 
             await _roomRepository.UpdateRoomAsync(room);
 
             if (room.Players.Count() == 0)
             {
                 await _roomRepository.RemoveRoomAsync(room);
+                await base.OnDisconnectedAsync(exception);
+                return;
             }
 
             await Clients.Groups(room.RoomId).SendAsync("PlayerLeft", player.Name);
-
             await Clients.Groups(room.RoomId).SendAsync("RoomUpdate", room);
 
             await base.OnDisconnectedAsync(exception);
@@ -100,9 +131,8 @@ namespace Application.Hubs
             player.GameRoomId = roomId;
 
             await _playerRepository.AddPlayerAsync(player);
-            await _roomService.SetGameAdminAsync(roomId);
-            await _playerRepository.UpdatePlayerAsync(player);
             await _roomRepository.UpdateRoomAsync(room);
+            await SetGameAdminAsync(roomId);
 
             await Clients.Groups(roomId).SendAsync("RoomUpdate", room);
 
@@ -115,11 +145,23 @@ namespace Application.Hubs
 
         public async Task StartGame(string roomId)
         {
+            await isPlayerInRoom(roomId);
+
             var room = await _roomRepository.GetRoomAsync(roomId);
+
             if (room.IsGameStarted)
             {
                 string alert = "Game already started!";
-                await Clients.Caller.SendAsync("GameStartedAlert", alert);
+                await Clients.Caller.SendAsync("GameAlreadyStartedAlert", alert);
+                return;
+            }
+
+            var caller = await _playerRepository.GetPlayerAsync(Context.ConnectionId);
+            if (caller.Role != Roles.RoomAdmin)
+            {
+                string unauthorizedStartAlert = "You are not room admin.";
+                await Clients.Caller.SendAsync("unauthorizedStartAlert", unauthorizedStartAlert);
+                return;
             }
 
             room.IsGameStarted = true;
@@ -142,18 +184,23 @@ namespace Application.Hubs
 
         public async Task EndTurn(string roomId)
         {
+            await isPlayerInRoom(roomId);
+
             var room = await _roomRepository.GetRoomAsync(roomId);
+
             if (!room.IsGameStarted)
             {
                 string gameNotStartedAlert = "Game not started yet.";
-                await Clients.Caller.SendAsync("GameNotStarted", gameNotStartedAlert);
+                await Clients.Caller.SendAsync("GameNotStartedAlert", gameNotStartedAlert);
+                return;
             }
 
             var currentPlayer = room.Players[room.CurrentPlayerRoundIndex - 1];
             if (!currentPlayer.IsPlayerRound)
             {
                 string alert = "it's not your turn.";
-                await Clients.Caller.SendAsync(alert);
+                await Clients.Caller.SendAsync("NotYourTurnAlert", alert);
+                return;
             }
 
             if (room.CurrentPlayerRoundIndex == room.MaxPlayerRoundIndex)
@@ -171,13 +218,11 @@ namespace Application.Hubs
                 await PlayerTurn(roomId);
             }
 
-            if (room.Deck.Cards.Any())
+            if (room.Deck.Cards.Any() && !currentPlayer.IsCardDrewFromDeck)
             {
-                if (!currentPlayer.IsCardDrewFromDeck)
-                {
-                    var needToDrawAlert = "You must draw a card before finishing the turn!";
-                    await Clients.Caller.SendAsync("MustDrawAlert", needToDrawAlert);
-                }
+                var needToDrawAlert = "You must draw a card before finishing the turn!";
+                await Clients.Caller.SendAsync("MustDrawAlert", needToDrawAlert);
+                return;
             }
 
             if (await FinishGame(roomId))
@@ -189,6 +234,7 @@ namespace Application.Hubs
 
                 var gameFinishMessage = $"Game won by {winner.Name}!";
                 await Clients.Group(roomId).SendAsync("GameFinish", gameFinishMessage);
+                return;
             }
 
             room.CurrentPlayerRoundIndex++;
@@ -205,13 +251,15 @@ namespace Application.Hubs
 
         public async Task PlayerTurn(string roomId)
         {
+            await isPlayerInRoom(roomId);
 
             var room = await _roomRepository.GetRoomAsync(roomId);
             var currentPlayer = room.Players[room.CurrentPlayerRoundIndex - 1];
             if (!currentPlayer.IsPlayerRound)
             {
                 string alert = "Something went wrong, it's not your turn.";
-                await Clients.Caller.SendAsync(alert);
+                await Clients.Caller.SendAsync("PlayerTurnErrorAlert", alert);
+                return;
             }
 
             string message = $"It's {currentPlayer.Name} turn!.";
@@ -220,6 +268,8 @@ namespace Application.Hubs
 
         public async Task SendMessage(string playerMessage, string authorName, string roomId)
         {
+            await isPlayerInRoom(roomId);
+
             var room = await _roomRepository.GetRoomAsync(roomId);
             if (room == null)
             {
@@ -231,6 +281,12 @@ namespace Application.Hubs
             if (player == null)
             {
                 throw new BadRequestException("Player not exist.");
+            }
+
+            if (playerMessage == "deck")
+            {
+                var lastCard = room.Deck.Cards;
+                await Clients.Caller.SendAsync("DeckCheck", lastCard);
             }
 
             var message = new Message()
