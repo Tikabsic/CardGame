@@ -30,19 +30,29 @@ To install and use Card Game, follow these steps:
 
 ## Client
 
-The client for the game can be found at https://github.com/Tikabsic/CardGameClient.
+The client for the game can be found at <a href="https://github.com/Tikabsic/CardGameClient">DikkyClient.</a>
 
 ## Features
 
 The game currently supports the following features:
 
+- Registering new users.
+- Authentication based on JWT tokens.
+- Creating game rooms.
+- Joining specific rooms based on their IDs.
 - Multiplayer games with up to four players.
 - Real-time communication between clients and the server using SignalR.
-- Randomized card distribution.
+- Real-time chat during the game.
 
 ## Tech
 
-<a href="https://dotnet.microsoft.com/en-us/">.NET 7 </a>
+<a href="https://dotnet.microsoft.com/en-us/">.NET 7</a>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/?view=aspnetcore-6.0">ASP.NETCore 6</a>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/signalr/introduction?view=aspnetcore-7.0">SignalR </a>
+<a href="https://learn.microsoft.com/en-us/ef/core/">EntityFramework Core</a>
+<a href="https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html">Clean Architecture</a>
+<a href="https://learn.microsoft.com/en-us/archive/msdn-magazine/2009/february/best-practice-an-introduction-to-domain-driven-design">Domain Driven Design</a>
+
 
 ## Contributing
 
