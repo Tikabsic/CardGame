@@ -40,6 +40,10 @@ The game currently supports the following features:
 - Real-time communication between clients and the server using SignalR.
 - Randomized card distribution.
 
+## Tech
+
+<a href="https://dotnet.microsoft.com/en-us/">.NET 7 </a>
+
 ## Contributing
 
 If you would like to contribute to the development of Card Game, please feel free to submit pull requests or open issues on the GitHub repository.
