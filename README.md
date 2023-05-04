@@ -47,6 +47,7 @@ The game currently supports the following features:
 ## Tech
 
 <a href="https://dotnet.microsoft.com/en-us/">.NET 7</a>
+</br>
 <a href="https://learn.microsoft.com/en-us/aspnet/core/?view=aspnetcore-6.0">ASP.NETCore 6</a>
 <a href="https://learn.microsoft.com/en-us/aspnet/core/signalr/introduction?view=aspnetcore-7.0">SignalR </a>
 <a href="https://learn.microsoft.com/en-us/ef/core/">EntityFramework Core</a>
