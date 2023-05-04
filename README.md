@@ -4,7 +4,7 @@ Dikky is a multiplayer web application developed in C# using ASP.NET Core and Si
 
 ## Game Overview
 
-Card Game is a turn-based game that is played with a standard deck of 52 cards. The objective of the game is to be the first player to empty their hand of cards by playing them to a central discard pile.
+Card Game is a turn-based game that is played with a deck of 26 cards from 9 to Ace. The objective of the game is to be the first player to empty their hand of cards by playing them to a central discard pile after dealers deck is empty.
 
 In each round of the game, players take turns playing one or more of the following actions:
 
