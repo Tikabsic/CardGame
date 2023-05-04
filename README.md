@@ -23,7 +23,7 @@ To install and use Card Game, follow these steps:
 1. Clone the repository: `git clone https://github.com/Tikabsic/CardGame.git`
 2. Open the solution file (CardGame.sln) in Visual Studio.
 3. Build and run the solution.
-4. 4. Clone and run the web client from my other repository, which is mentioned below.
+4. Clone and run the web client from my other repository, which is mentioned below.
 5. Enter a username and create or join a game.
 6. Wait for other players to join the game.
 7. Play the game!
