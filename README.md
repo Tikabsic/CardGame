@@ -46,13 +46,18 @@ The game currently supports the following features:
 
 ## Tech
 
-<a href="https://dotnet.microsoft.com/en-us/">.NET 7</a>
+<li><a href="https://dotnet.microsoft.com/en-us/">.NET 7</a></li>
 </br>
-<a href="https://learn.microsoft.com/en-us/aspnet/core/?view=aspnetcore-6.0">ASP.NETCore 6</a>
-<a href="https://learn.microsoft.com/en-us/aspnet/core/signalr/introduction?view=aspnetcore-7.0">SignalR </a>
-<a href="https://learn.microsoft.com/en-us/ef/core/">EntityFramework Core</a>
-<a href="https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html">Clean Architecture</a>
-<a href="https://learn.microsoft.com/en-us/archive/msdn-magazine/2009/february/best-practice-an-introduction-to-domain-driven-design">Domain Driven Design</a>
+<li><a href="https://learn.microsoft.com/en-us/aspnet/core/?view=aspnetcore-6.0">ASP.NETCore 6</a></li>
+</br>
+<li><a href="https://learn.microsoft.com/en-us/aspnet/core/signalr/introduction?view=aspnetcore-7.0">SignalR </a></li>
+</br>
+<li><a href="https://learn.microsoft.com/en-us/ef/core/">EntityFramework Core</a></li>
+</br>
+<li><a href="https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html">Clean Architecture</a></li>
+</br>
+<li><a href="https://learn.microsoft.com/en-us/archive/msdn-magazine/2009/february/best-practice-an-introduction-to-domain-driven-design">Domain Driven Design</a></li>
+</br>
 
 
 ## Contributing
