@@ -75,13 +75,8 @@ namespace Application.Hubs
         public async Task SetGameAdminAsync(string roomId)
         {
             var room = await _roomRepository.GetRoomAsync(roomId);
-            var players = await _playerRepository.GetPlayersAsync();
-            var firstPlayer = players.FirstOrDefault();
-
-            if (firstPlayer == null)
-            {
-                return;
-            }
+            var players = room.Players;
+            var firstPlayer = players.First();
 
             firstPlayer.Role = Roles.RoomAdmin;
 
@@ -163,8 +158,8 @@ namespace Application.Hubs
             player.ListIndex = room.Players.IndexOf(player) + 1;
 
             await _playerRepository.AddPlayerAsync(player);
-            await _roomRepository.UpdateRoomAsync(room);
             await SetGameAdminAsync(roomId);
+            await _roomRepository.UpdateRoomAsync(room);
 
             var roomDto = _mapper.Map<RoomDTO>(room);
 

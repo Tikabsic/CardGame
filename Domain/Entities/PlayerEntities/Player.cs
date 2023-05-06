@@ -9,9 +9,9 @@ namespace Domain.Entities.PlayerEntities
     {
         public int Id { get; set; }
         public int ListIndex { get; set; }
-        public Room? GameRoom { get; set; }
-        public string? GameRoomId { get; set; }
-        public string? ConnectionId { get; set; }
+        public Room GameRoom { get; set; }
+        public string GameRoomId { get; set; }
+        public string ConnectionId { get; set; }
         public bool IsPlayerRound { get; set; } = false;
         public bool IsCardDrewFromDeck { get; set; } = false;
         public bool IsCardThrownToStack { get; set; } = false;

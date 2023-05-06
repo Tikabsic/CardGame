@@ -61,7 +61,7 @@ namespace Application.Services
             return false;
         }
 
-        public async Task<Player?> GetPlayer()
+        public async Task<Player> GetPlayer()
         {
             var authenticateResult = await _httpContextAccessor.HttpContext.AuthenticateAsync();
             if (authenticateResult?.Principal != null)

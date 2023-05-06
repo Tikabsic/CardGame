@@ -8,8 +8,6 @@ namespace Infrastruct.Persistence.EntitiesConfig
     {
         public void Configure(EntityTypeBuilder<Player> builder)
         {
-            builder.HasIndex(p => p.Name).IsUnique();
-
             builder.Property(p => p.GameRoomId)
                 .IsRequired(false);
 

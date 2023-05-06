@@ -14,32 +14,27 @@ namespace Infrastruct.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<Room> SaveRoomAsync(Room room)
+        public async Task SaveRoomAsync(Room room)
         {
             await _dbContext.Rooms.AddAsync(room);
 
             await _dbContext.SaveChangesAsync();
 
-            return room;
         }
 
-        public async Task<Room> RemoveRoomAsync(Room room)
+        public async Task RemoveRoomAsync(Room room)
         {
             _dbContext.Rooms.Remove(room);
 
             await _dbContext.SaveChangesAsync();
-
-            return room;
         }
 
-        public async Task<Room> UpdateRoomAsync(Room room)
+        public async Task UpdateRoomAsync(Room room)
         {
 
             _dbContext.Rooms.Update(room);
 
             await _dbContext.SaveChangesAsync();
-
-            return room;
         }
 
         public async Task<List<Room>> GetRoomsAsync()
