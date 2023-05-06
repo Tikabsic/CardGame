@@ -14,12 +14,11 @@ namespace Infrastruct.Repositories
         {
             _dbContext = dbContext;
         }
-        public async Task<Deck> UpdateDeckAsync(int deckId)
+        public async Task UpdateDeckAsync(int deckId)
         {
             var deck = await _dbContext.Decks.FirstAsync(d => d.Id == deckId);
             _dbContext.Decks.Update(deck);
             await _dbContext.SaveChangesAsync();
-            return deck;
         }
 
         public async Task<Deck> GetDeckAsync(string roomId)

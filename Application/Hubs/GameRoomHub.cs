@@ -60,6 +60,18 @@ namespace Application.Hubs
             }
         }
 
+        public async Task NotPlayerTurn(string connectionId)
+        {
+            var player = await _playerRepository.GetPlayerAsync(connectionId);
+
+            if (!player.IsPlayerRound)
+            {
+                string alert = "It's not your turn.";
+                await Clients.Caller.SendAsync("PlayerTurnErrorAlert", alert);
+                return;
+            }
+        }
+
         public async Task SetGameAdminAsync(string roomId)
         {
             var room = await _roomRepository.GetRoomAsync(roomId);
@@ -97,7 +109,7 @@ namespace Application.Hubs
 
             var playersList = await _playerRepository.GetPlayersAsync();
 
-            var player = playersList.FirstOrDefault(p => p.ConnectionId == playerId);
+            var player = playersList.First(p => p.ConnectionId == playerId);
 
             var room = await _roomRepository.GetRoomAsync(player.GameRoomId);
 
@@ -118,6 +130,14 @@ namespace Application.Hubs
                 return;
             }
 
+            var roomPlayers = room.Players.ToList();
+
+            foreach (var otherPlayer in roomPlayers)
+            {
+                otherPlayer.ListIndex = room.Players.IndexOf(otherPlayer) + 1;
+                await _playerRepository.UpdatePlayerAsync(otherPlayer);
+            }
+
             await Clients.Groups(room.RoomId).SendAsync("PlayerLeft", player.Name);
             await Clients.Groups(room.RoomId).SendAsync("RoomUpdate", room);
 
@@ -130,16 +150,25 @@ namespace Application.Hubs
             var player = await _accountService.GetPlayer();
             player.ConnectionId = Context.ConnectionId;
 
+            if (room.Players.Contains(player))
+            {
+                player.ConnectionId = Context.ConnectionId;
+                await _playerRepository.UpdatePlayerAsync(player);
+                return room;
+            }
             room.Players.Add(player);
 
             player.GameRoom = room;
             player.GameRoomId = roomId;
+            player.ListIndex = room.Players.IndexOf(player) + 1;
 
             await _playerRepository.AddPlayerAsync(player);
             await _roomRepository.UpdateRoomAsync(room);
             await SetGameAdminAsync(roomId);
 
-            await Clients.Groups(roomId).SendAsync("RoomUpdate", room);
+            var roomDto = _mapper.Map<RoomDTO>(room);
+
+            await Clients.Groups(roomId).SendAsync("RoomUpdate", roomDto);
 
             await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
 
@@ -201,6 +230,7 @@ namespace Application.Hubs
             }
 
             var currentPlayer = room.Players[room.CurrentPlayerRoundIndex - 1];
+
             if (!currentPlayer.IsPlayerRound)
             {
                 string alert = "it's not your turn.";
@@ -262,12 +292,13 @@ namespace Application.Hubs
 
             var room = await _roomRepository.GetRoomAsync(roomId);
             var currentPlayer = room.Players[room.CurrentPlayerRoundIndex - 1];
-            if (!currentPlayer.IsPlayerRound)
-            {
-                string alert = "Something went wrong, it's not your turn.";
-                await Clients.Caller.SendAsync("PlayerTurnErrorAlert", alert);
-                return;
-            }
+
+            currentPlayer.IsPlayerRound = true;
+            currentPlayer.IsCardDrewFromDeck = false;
+            currentPlayer.IsCardsDrewFromStack = false;
+            currentPlayer.IsCardThrownToStack = false;
+
+            await NotPlayerTurn(currentPlayer.ConnectionId);
 
             string message = $"It's {currentPlayer.Name} turn!.";
             await Clients.Group(roomId).SendAsync("NextTurn", message);
@@ -277,38 +308,69 @@ namespace Application.Hubs
         {
             await isPlayerInRoom(roomId);
 
-            var room = _roomRepository.GetRoomAsync(roomId);
+            var room = await _roomRepository.GetRoomAsync(roomId);
+            var currentPlayer = room.Players[room.CurrentPlayerRoundIndex - 1];
+
+            await NotPlayerTurn(currentPlayer.ConnectionId);
+
+            if (currentPlayer.IsCardDrewFromDeck)
+            {
+                var message = "You already drew a card from deck!";
+                await Clients.Caller.SendAsync("AlreadyDrewAlert", message);
+                return;
+            }
 
             var playerDto = await _playerService.DrawACardFromDeck(roomId, Context.ConnectionId);
             var roomDto = _mapper.Map<RoomDTO>(room);
 
-            await Clients.GroupExcept(roomId, Context.ConnectionId).SendAsync("PlayerDrewCardFromDeck", roomDto);
+            await Clients.Group(roomId).SendAsync("PlayerDrewCardFromDeck", roomDto);
             await Clients.Caller.SendAsync("CardDrawed", playerDto);
         }
 
         public async Task ThrowACardToStack(string roomId, int cardId)
         {
             await isPlayerInRoom(roomId);
+
             var caller = await _playerRepository.GetPlayerAsync(Context.ConnectionId);
             var room = await _roomRepository.GetRoomAsync(roomId);
+
+            await NotPlayerTurn(caller.ConnectionId);
+
+            if (caller.IsCardThrownToStack)
+            {
+                var message = "You already threw a card to stack!";
+                await Clients.Caller.SendAsync("AlreadyThrewAlert", message);
+                return;
+            }
 
             var roomDto = _mapper.Map<RoomDTO>(room);
             var playerDto = _playerService.ThrowACardToStack(roomId, caller.ConnectionId, cardId);
 
-            await Clients.GroupExcept(roomId, caller.ConnectionId).SendAsync("PlayerThrewCardToStack", roomDto);
+            await Clients.Group(roomId).SendAsync("PlayerThrewCardToStack", roomDto);
             await Clients.Caller.SendAsync("CardThrown", playerDto);
         }
 
         public async Task DrawACardFromStack(string roomId)
         {
             await isPlayerInRoom(roomId);
+
             var caller = await _playerRepository.GetPlayerAsync(Context.ConnectionId);
             var room = await _roomRepository.GetRoomAsync(roomId);
 
             var roomDto = _mapper.Map<RoomDTO>(room);
+
+            await NotPlayerTurn(caller.ConnectionId);
+
+            if (caller.IsCardsDrewFromStack)
+            {
+                var message = "You already drew a card from stack!";
+                await Clients.Caller.SendAsync("AlreadyDrewStackAlert", message);
+                return;
+            }
+
             var playerDto = _playerService.TakeCardsFromStack(roomId, caller.ConnectionId);
 
-            await Clients.GroupExcept(roomId, caller.ConnectionId).SendAsync("PlayerTookCardsFromStack", roomDto);
+            await Clients.Group(roomId).SendAsync("PlayerTookCardsFromStack", roomDto);
             await Clients.Caller.SendAsync("CardsTaken", playerDto);
 
         }

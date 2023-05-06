@@ -61,7 +61,7 @@ namespace Application.Services
             return false;
         }
 
-        public async Task<Player> GetPlayer()
+        public async Task<Player?> GetPlayer()
         {
             var authenticateResult = await _httpContextAccessor.HttpContext.AuthenticateAsync();
             if (authenticateResult?.Principal != null)
@@ -70,8 +70,8 @@ namespace Application.Services
 
                 var player = new Player()
                 {
-                    Name = claims.FirstOrDefault(x => x.Type == "Name")?.Value,
-                    UserScore = int.Parse(claims.FirstOrDefault(x => x.Type == "UserScore")?.Value)
+                    Name = claims.First(x => x.Type == "Name")?.Value,
+                    UserScore = int.Parse(claims.First(x => x.Type == "UserScore")?.Value)
                 };
                 return player;
             }

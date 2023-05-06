@@ -17,7 +17,7 @@ namespace Infrastruct.Repositories
 
         public async Task<User> GetUserByName(string Name)
         {
-            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Name == Name);
+            var user = await _dbContext.Users.FirstAsync(u => u.Name == Name);
 
             return user;
         }

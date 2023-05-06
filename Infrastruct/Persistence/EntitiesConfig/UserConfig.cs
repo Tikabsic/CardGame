@@ -8,6 +8,8 @@ namespace Infrastruct.Persistence.EntitiesConfig
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
+            builder.HasIndex(u => u.Name).IsUnique();
+
             builder.HasKey(u => u.Id);
             builder.Property(u => u.Id)
                 .IsRequired();

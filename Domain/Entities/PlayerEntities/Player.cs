@@ -8,6 +8,7 @@ namespace Domain.Entities.PlayerEntities
     public class Player
     {
         public int Id { get; set; }
+        public int ListIndex { get; set; }
         public Room? GameRoom { get; set; }
         public string? GameRoomId { get; set; }
         public string? ConnectionId { get; set; }

@@ -16,31 +16,27 @@ namespace Infrastruct.Repositories
         }
 
 
-        public async Task<Player> AddPlayerAsync(Player player)
+        public async Task AddPlayerAsync(Player player)
         {
             await _dbContext.Players.AddAsync(player);
 
             await _dbContext.SaveChangesAsync();
-
-            return player;
         }
 
-        public async Task<Player> RemovePlayerAsync(Player player)
+        public async Task RemovePlayerAsync(Player player)
         {
             _dbContext.Players.Remove(player);
 
             await _dbContext.SaveChangesAsync();
 
-            return player;
         }
 
-        public async Task<Player> UpdatePlayerAsync(Player player)
+        public async Task UpdatePlayerAsync(Player player)
         {
             _dbContext.Players.Update(player);
 
             await _dbContext.SaveChangesAsync();
 
-            return player;
         }
 
         public async Task<Player> GetPlayerAsync(string connectionId)
