@@ -6,7 +6,7 @@ using Domain.Enums;
 
 namespace Application.DTO
 {
-    internal class RoomDTO
+    public class RoomDTO
     {
         public string RoomId { get; set; }
         public List<PlayerDTO> Players { get; set; }

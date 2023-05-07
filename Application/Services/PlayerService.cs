@@ -6,7 +6,9 @@ using Domain.Entities.CardEntities;
 using Domain.Entities.PlayerEntities;
 using Domain.Entities.RoomEntities;
 using Domain.Enums;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Application.Services
@@ -31,14 +33,14 @@ namespace Application.Services
             _playerCardRepository = playerCardRepository;
         }
 
-        private async Task TakeCards(string roomId, string connectionId ,int amountOfCards)
+        private async Task<List<CardDTO>> TakeCards(string roomId, string connectionId, int amountOfCards)
         {
             var room = await _roomRepository.GetRoomAsync(roomId);
             var caller = await _playerRepository.GetPlayerAsync(connectionId);
             var stack = room.Stack;
 
             var cards = stack.Cards.TakeLast(amountOfCards);
-
+            var cardsList = new List<CardDTO>();
             foreach (var card in cards)
             {
                 var playerCard = new PlayerCard()
@@ -50,29 +52,35 @@ namespace Application.Services
                 };
 
                 caller.Hand.Add(playerCard);
+                cardsList.Add(_mapper.Map<CardDTO>(playerCard));
                 stack.Cards.Remove(card);
                 await _playerCardRepository.AddCard(playerCard);
             }
 
             await _roomRepository.UpdateRoomAsync(room);
             await _playerRepository.UpdatePlayerAsync(caller);
+            return cardsList;
         }
 
-        public async Task<PlayerDTO> DrawACardFromDeck(string roomId, string connectionId)
+        public async Task<CardDTO> DrawACardFromDeck(string roomId, string connectionId)
         {
             var room = await _roomRepository.GetRoomAsync(roomId);
             var caller = await _playerRepository.GetPlayerAsync(connectionId);
-            var lastDeckCard = room.Deck.Cards.Last();
+            var cards = room.Deck.Cards.ToList();
+            var cardCount = cards.Count();
+            Random rng = new Random();
+            var cardIndex = rng.Next(cardCount);
+            var card = cards[cardIndex];
 
             var playerCard = new PlayerCard()
             {
-                Card = lastDeckCard.Card,
-                CardId = lastDeckCard.CardId,
+                Card = card.Card,
+                CardId = card.CardId,
                 Player = caller,
                 PlayerId = caller.Id
             };
 
-            room.Deck.Cards.Remove(lastDeckCard);
+            room.Deck.Cards.Remove(card);
             caller.Hand.Add(playerCard);
 
             caller.IsCardDrewFromDeck = true;
@@ -80,11 +88,9 @@ namespace Application.Services
 
             await _roomRepository.UpdateRoomAsync(room);
 
-            var playerDTO = _mapper.Map<PlayerDTO>(caller);
+            var cardDTO = _mapper.Map<CardDTO>(playerCard);
 
-
-
-            return playerDTO;
+            return cardDTO;
         }
 
         public async Task<PlayerDTO> ThrowACardToStack(string roomId, string connectionId, int cardId)
@@ -113,22 +119,25 @@ namespace Application.Services
             return playerDTO;
         }
 
-        public async Task<PlayerDTO> TakeCardsFromStack(string roomId, string connectionId)
+        public async Task<List<CardDTO>> TakeCardsFromStack(string roomId, string connectionId)
         {
             var room = await _roomRepository.GetRoomAsync(roomId);
             var caller = await _playerRepository.GetPlayerAsync(connectionId);
             var stack = room.Stack;
+            var cardsDTO = new List<CardDTO>();
 
-            
+
 
             if (stack.Mode == StackDrawingMode.ThreeCards && caller.IsCardDrewFromDeck)
             {
-                await TakeCards(roomId, connectionId, 2);
+                var cardList = await TakeCards(roomId, connectionId, 2);
+                return cardList;
             }
 
             if (stack.Mode == StackDrawingMode.ThreeCards && !caller.IsCardDrewFromDeck)
             {
-                await TakeCards(roomId, connectionId, 3);
+                var cardList = await TakeCards(roomId, connectionId, 3);
+                return cardList;
             }
 
             if (stack.Mode == StackDrawingMode.All)
@@ -144,7 +153,7 @@ namespace Application.Services
                         Player = caller,
                         PlayerId = caller.Id
                     };
-
+                    cardsDTO.Add(_mapper.Map<CardDTO>(playerCard));
                     caller.Hand.Add(playerCard);
                     stack.Cards.Remove(card);
                     await _playerCardRepository.AddCard(playerCard);
@@ -155,9 +164,7 @@ namespace Application.Services
                 await _playerRepository.UpdatePlayerAsync(caller);
             }
 
-            var playerDTO = _mapper.Map<PlayerDTO>(caller);
-
-            return playerDTO;
+            return cardsDTO;
         }
     }
 }

@@ -31,20 +31,7 @@ namespace Infrastruct.Repositories
             var cards = await _dbContext.Cards.ToListAsync();
             var deck = await _dbContext.Decks.FirstAsync(d => d.Id == deckId);
 
-            Random random = new Random();
-
-            Card[] cardArray = cards.ToArray();
-
-            for (int i = cardArray.Length - 1; i >= 1; i--)
-            {
-                int j = random.Next(i + 1);
-
-                Card temp = cardArray[i];
-                cardArray[i] = cardArray[j];
-                cardArray[j] = temp;
-            }
-
-            foreach (var card in cardArray)
+            foreach (var card in cards)
             {
                 deck.Cards.Add(new DeckCard()
                 {

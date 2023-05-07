@@ -38,11 +38,11 @@ namespace Application.AutoMapper
                 .ForMember(c => c.Value, dc => dc.MapFrom(src => src.Card.Value));
 
             CreateMap<StackCard, CardDTO>()
-                .ForMember(c => c.Value, sc => sc.MapFrom(src => src.Card.Value))
+                .ForMember(c => c.Suit, sc => sc.MapFrom(src => src.Card.Suit))
                 .ForMember(c => c.Value, sc => sc.MapFrom(src => src.Card.Value));
 
             CreateMap<PlayerCard, CardDTO>()
-                .ForMember(c => c.Value, pc => pc.MapFrom(src => src.Card.Value))
+                .ForMember(c => c.Suit, pc => pc.MapFrom(src => src.Card.Suit))
                 .ForMember(c => c.Value, pc => pc.MapFrom(src => src.Card.Value));
 
             CreateMap<Player, PlayerDTO>()

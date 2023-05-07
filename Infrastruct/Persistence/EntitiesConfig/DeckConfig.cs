@@ -10,7 +10,8 @@ namespace Infrastruct.Persistence.EntitiesConfig
         {
             builder.HasOne(d => d.Room)
                 .WithOne(r => r.Deck)
-                .HasForeignKey<Deck>(d => d.RoomId);
+                .HasForeignKey<Deck>(d => d.RoomId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(d => d.Cards)
                 .WithOne(dc => dc.Deck)
