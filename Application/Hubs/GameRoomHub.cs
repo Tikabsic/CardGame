@@ -413,9 +413,10 @@ namespace Application.Hubs
 
             var players = await _playerRepository.GetPlayersAsync();
             var player = players.First(p => p.Name == authorName);
+
             if (player == null)
             {
-                throw new BadRequestException("Player not exist.");
+                return;
             }
 
             if (playerMessage == "deck")
