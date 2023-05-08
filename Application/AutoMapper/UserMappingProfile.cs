@@ -29,6 +29,8 @@ namespace Application.AutoMapper
 
             CreateMap<Message, MessageDTO>();
 
+            CreateMap<ThrownCardDTO, CardDTO>();
+
             CreateMap<Card, CardDTO>()
             .ForMember(cd => cd.Suit, c => c.MapFrom(c => c.Suit))
             .ForMember(cd => cd.Value, c => c.MapFrom(c => c.Value));

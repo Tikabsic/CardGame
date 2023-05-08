@@ -180,7 +180,7 @@ namespace Application.Hubs
             }
             room.Players.Add(player);
 
-            player.GameRoom = room;asd
+            player.GameRoom = room;
             player.GameRoomId = roomId;
             player.ListIndex = room.Players.IndexOf(player) + 1;
 
@@ -323,7 +323,7 @@ namespace Application.Hubs
             await Clients.Group(roomId).SendAsync("NextTurn", message);
         }
 
-        public async Task<CardDTO> DrawACardFromDeck(string roomId)
+        public async Task DrawACardFromDeck(string roomId)
         {
             await isPlayerInRoom(roomId);
 
@@ -332,24 +332,23 @@ namespace Application.Hubs
 
             if (await NotPlayerTurn(caller.ConnectionId))
             {
-                throw new Exception("Error");
+                return;
             }
 
             if (caller.IsCardDrewFromDeck)
             {
                 var message = "You already drew a card from deck!";
                 await Clients.Caller.SendAsync("AlreadyDrewAlert", message);
-                throw new Exception("Error");
+                return;
             }
 
             var cardDto = await _playerService.DrawACardFromDeck(roomId, Context.ConnectionId);
-            var roomDto = _mapper.Map<RoomDTO>(room);
 
-            await Clients.Group(roomId).SendAsync("PlayerDrewCardFromDeck", roomDto);
-            return cardDto;
+            await Clients.Caller.SendAsync("DrewCard", cardDto);
+            await Clients.GroupExcept(roomId, caller.ConnectionId).SendAsync("PlayerDrewCardFromDeck", caller.ListIndex);
         }
 
-        public async Task<PlayerDTO> ThrowACardToStack(string roomId, ThrownCardDTO dto)
+        public async Task ThrowACardToStack(string roomId, ThrownCardDTO dto)
         {
             await isPlayerInRoom(roomId);
 
@@ -360,24 +359,24 @@ namespace Application.Hubs
 
             if (await NotPlayerTurn(caller.ConnectionId))
             {
-                throw new Exception("Error");
+                return;
             }
 
             if (caller.IsCardThrownToStack)
             {
                 var message = "You already threw a card to stack!";
                 await Clients.Caller.SendAsync("AlreadyThrewAlert", message);
-                throw new Exception("Error");
+                return;
             }
 
-            var roomDto = _mapper.Map<RoomDTO>(room);
-            var playerDto = await _playerService.ThrowACardToStack(roomId, caller.ConnectionId, cardId);
+            var cardDto = _mapper.Map<CardDTO>(card);
+            await _playerService.ThrowACardToStack(roomId, caller.ConnectionId, cardId);
 
-            await Clients.Group(roomId).SendAsync("PlayerThrewCardToStack", roomDto);
-            return playerDto;
+            await Clients.Group(roomId).SendAsync("PlayerThrewCardToStack", cardDto);
+            await Clients.GroupExcept(roomId, caller.ConnectionId).SendAsync("RemovePlayerCard", caller.ListIndex);
         }
 
-        public async Task<List<CardDTO>> DrawACardFromStack(string roomId)
+        public async Task DrawACardFromStack(string roomId)
         {
             await isPlayerInRoom(roomId);
 
@@ -386,20 +385,20 @@ namespace Application.Hubs
 
             if (await NotPlayerTurn(caller.ConnectionId))
             {
-                throw new Exception("Error");
+                return;
             }
 
             if (caller.IsCardsDrewFromStack)
             {
                 var message = "You already drew a card from stack!";
                 await Clients.Caller.SendAsync("AlreadyDrewStackAlert", message);
-                throw new Exception("Error");
+                return;
             }
 
             var cardsDto = await _playerService.TakeCardsFromStack(roomId, caller.ConnectionId);
-            var roomDto = _mapper.Map<RoomDTO>(room);
-            await Clients.Group(roomId).SendAsync("PlayerTookCardsFromStack", roomDto);
-            return cardsDto;
+
+            await Clients.Caller.SendAsync("CardsDrewFromStack", cardsDto);
+            await Clients.GroupExcept(roomId, caller.ConnectionId).SendAsync("PlayerTookCardsFromStack",cardsDto.Count);
         }
 
         public async Task SendMessage(string playerMessage, string authorName, string roomId)
